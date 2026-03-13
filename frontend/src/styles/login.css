@@ -1,0 +1,52 @@
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; 
+  min-height: 100vh;
+  padding-top: 150px; 
+}
+/* card */
+
+.form-card{
+  background:white;
+  padding:40px;
+  width:100%;
+  max-width:450px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* STACK INPUTS */
+
+.login-form-fields{
+  display:block;
+}
+
+/* inputs */
+.login-form-fields{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:15px;
+  width:100%;
+}
+
+.login-form-fields{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:15px;
+  width:100%;
+}
+/* button */
+
+.calculate-btn{
+  width:100%;
+  padding:14px;
+  background:#b30000;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}

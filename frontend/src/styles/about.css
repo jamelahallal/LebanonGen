@@ -1,0 +1,152 @@
+  /* GENERAL THEME */
+.about-page {
+  font-family: 'Inter', 'Helvetica', sans-serif; 
+  color: #1a1a1a;
+  background-color: #fff;
+  overflow-x: hidden;
+}
+
+.section-label {
+  display: block;
+  text-transform: uppercase;
+  color: #b30000;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+/* HERO SECTION */
+.about-hero {
+  height: 85vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+              url('../images/sickle.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; 
+  display: flex;
+  align-items: center;
+  padding: 0 10%;
+}
+
+.hero-content {
+  max-width: 800px;
+  color: white;
+}
+
+.hero-content .subtitle {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.hero-content h1 {
+  font-size: clamp(40px, 6vw, 70px);
+  line-height: 1.1;
+  margin-bottom: 25px;
+}
+
+/* OVERLAP SECTION */
+.overlap-section {
+  display: flex;
+  align-items: center;
+  padding: 120px 10%;
+  gap: 0; /* Overlap handles the spacing */
+}
+
+.main-img {
+  flex: 1.2;
+  z-index: 1;
+}
+
+.main-img img {
+  width: 100%;
+  height: auto;          
+  max-height: 500px;     
+  object-fit: contain;
+  background-color: transparent;
+  box-shadow: 20px 20px 60px rgba(0,0,0,0.1);
+}
+
+.card-effect {
+  flex: 1;
+  background: white;
+  padding: 60px;
+  margin-left: -50px; /* The Overlap */
+  z-index: 2;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+}
+
+.card-effect h2 {
+  font-size: 38px;
+  margin-bottom: 20px;
+}
+
+  /* TEAM SECTION */
+  .team {
+    background: #f7f7f7;
+    padding: 80px 10%;
+    text-align: center;
+  }
+
+  .team h2 {
+    color: #8b0000;
+    font-size: 36px;
+    margin-bottom: 50px;
+  }
+
+  .team-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  .team-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 250px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transition: 0.3s;
+  }
+
+  .team-card:hover {
+    transform: translateY(-10px) scale(1.05);
+  }
+
+  .team-card img {
+    width: 100%;
+    border-radius: 50%;
+    margin-bottom: 15px;
+  }
+
+  .team-card h4 {
+    color: #8b0000;
+    margin-bottom: 10px;
+  }
+
+  .team-card p {
+    font-size: 14px;
+    color: #555;
+  }
+
+  /* RESPONSIVE */
+  @media screen and (max-width: 900px) {
+    .section {
+      flex-direction: column-reverse;
+      text-align: center;
+    }
+    
+    .team-cards {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .team-card {
+      width: 80%;
+      margin-bottom: 20px;
+    }
+  }

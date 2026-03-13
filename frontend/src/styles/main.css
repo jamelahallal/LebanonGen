@@ -1,0 +1,99 @@
+/* FORM */
+
+body{
+font-family: 'Segoe UI', sans-serif;
+background:#f6f7fb;
+margin:0;
+}
+
+/* FORM WRAPPER */
+
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 20px 80px 20px;
+  min-height: calc(100vh - 160px);
+}
+
+/* CARD */
+
+.form-card{
+background:white;
+padding:40px;
+width:650px;
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+margin-top: 50px;
+}
+
+.form-card h2{
+color:#b30000;
+margin-bottom:5px;
+}
+
+.form-subtitle{
+color:#777;
+margin-bottom:30px;
+}
+
+/* GRID FORM */
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+textarea{
+grid-column:span 2;
+}
+
+button{
+grid-column:span 2;
+}
+
+/* INPUT STYLE */
+
+input, textarea, select{
+padding:12px;
+border-radius:6px;
+border:1px solid #ddd;
+font-size:14px;
+transition:0.3s;
+}
+
+input:focus, textarea:focus, select:focus{
+outline:none;
+border-color:#b30000;
+box-shadow:0 0 0 2px rgba(179,0,0,0.1);
+}
+
+/* BUTTON */
+
+.calculate-btn{
+background:linear-gradient(135deg,#b30000,#ff4d4d);
+color:white;
+border:none;
+padding:14px;
+font-size:15px;
+font-weight:bold;
+border-radius:8px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.calculate-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 6px 15px rgba(179,0,0,0.3);
+}
+
+/* RESULT */
+
+.result-card{
+margin-top:25px;
+padding:20px;
+background:#fff5f5;
+border-left:5px solid #b30000;
+border-radius:8px;
+}
