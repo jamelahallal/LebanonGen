@@ -71,7 +71,7 @@ box-shadow:0 0 0 2px rgba(179,0,0,0.1);
 
 /* BUTTON */
 
-.calculate-btn{
+.submit-btn{
 background:linear-gradient(135deg,#b30000,#ff4d4d);
 color:white;
 border:none;
@@ -83,17 +83,29 @@ cursor:pointer;
 transition:0.3s;
 }
 
-.calculate-btn:hover{
+.submit-btn:hover{
 transform:translateY(-2px);
 box-shadow:0 6px 15px rgba(179,0,0,0.3);
 }
 
-/* RESULT */
+/* Footer link styling */
+.form-footer {
+  margin-top: 20px;
+  text-align: center;
+}
 
-.result-card{
-margin-top:25px;
-padding:20px;
-background:#fff5f5;
-border-left:5px solid #b30000;
-border-radius:8px;
+.form-footer p {
+  font-size: 20px;
+  color: #666; 
+}
+
+.register-link {
+  color: #b30000; 
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.register-link:hover {
+  text-decoration: underline;
 }

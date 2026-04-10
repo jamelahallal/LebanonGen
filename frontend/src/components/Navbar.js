@@ -16,7 +16,7 @@ export default function Navbar() {
             <span className="text-xl font-bold text-gray-800">
               Lebanon<span className="text-red-600">Gen</span>
             </span>
-            <span className="text-sm text-gray-500">Sickle Cell Awareness</span>
+            <span className="text-sm text-gray-500">Genetic Disease Awareness</span>
           </div>
         </Link>
 
@@ -33,14 +33,6 @@ export default function Navbar() {
               className="hover:text-red-600 transition duration-300"
             >
               About
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/form"
-              className="hover:text-red-600 transition duration-300"
-            >
-              Couples Form
             </Link>
           </li>
           <li>
@@ -95,15 +87,6 @@ export default function Navbar() {
               className="hover:text-teal-600 transition duration-300 block"
             >
               About
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/form"
-              onClick={() => setIsOpen(false)}
-              className="hover:text-teal-600 transition duration-300 block"
-            >
-              Couples Form
             </Link>
           </li>
           <li>

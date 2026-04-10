@@ -66,12 +66,6 @@ export default function Footer() {
             About Us
           </Link>
           <Link
-            to="/form"
-            className="hover:text-red-600 transform hover:text-bold text-gray-700"
-          >
-            Compatibility Form
-          </Link>
-          <Link
             to="/dashboard"
             className="hover:text-red-600 transform hover:text-bold text-gray-700"
           >

@@ -1,51 +1,79 @@
-import React, { useState } from "react";
-import "../styles/login.css";
+  import React, { useState } from "react";
+  import { useNavigate } from "react-router-dom";
+  import "../styles/login.css";
 
-function Login() {
+  function Login() {
+    const [formData, setFormData] = useState({
+      email: "",
+      password: "",
+    });
 
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-  });
+    const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-  return (
-    <div className="form-wrapper">
-      <div className="form-card">
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await fetch("http://localhost:5000/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const data = await response.json();
 
-        <h2>Patient Portal Login</h2>
-        <p className="form-subtitle">
-          Register your profile to help us track and prevent sickle cell disease across Lebanon.
-        </p>
+      if (response.ok) {
+          // SAVE the ID to localStorage so the form can find it
+          localStorage.setItem("coupleId", data.user.id);   
+          navigate("/form"); 
+        } else {
+          alert(data.message || "Login failed");
+        }
+      } catch (error) {
+        console.error("Connection error", error);
+        alert("Server error. Please try again later.");
+      }
+    };
 
-        <form className="login-form-fields">
+    return (
+      <div className="form-wrapper">
+        <div className="form-card">
+          <h2>Patient Portal Login</h2>
+          <p className="form-subtitle">
+            Register your profile to help us track and prevent sickle cell disease across Lebanon.
+          </p>
 
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            onChange={handleChange}
-          />
+          <form className="login-form-fields" onSubmit={handleSubmit}>
+            {/* This field now acts as the Email/ID field to maintain your layout */}
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              onChange={handleChange}
+            />
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            onChange={handleChange}
-          />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={handleChange}
+            />
 
-          <button type="submit" className="calculate-btn">
-            Sign In
-          </button>
+            <button type="submit" className="calculate-btn">
+              Sign In
+            </button>
+          </form>
 
-        </form>
-
+          <div className="form-footer">
+            <p>Don't have an account? 
+              <a href="/register" className="register-link"> Register here</a>
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-export default Login;
+  export default Login;
