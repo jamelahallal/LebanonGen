@@ -1,50 +1,35 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-require("dotenv").config(); // ✅ MOVED HERE - Load environment variables FIRST
+require("dotenv").config();
+
 const coupleRoutes = require("./routes/CouplesRoute");
-const adminRoutes = require("./routes/AdminRoute");
-const geminiRoute = require("./routes/gemini");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-console.log("=== Environment Check ===");
-
-if (!process.env.GEMINI_API_KEY) {
-  console.log("❌ GEMINI_API_KEY is missing!");
-} else {
-  console.log("✅ API Key loaded successfully");
-  console.log("KEY:", process.env.GEMINI_API_KEY);
-  console.log("API Key preview:", process.env.GEMINI_API_KEY.substring(0, 10));
-}
-
-console.log("=======================");
-
 // 1. Database Connection
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "",
+  password: "", // Change this if you have a MySQL password
   database: "lebanongene",
 });
 
 db.connect((err) => {
   if (err) {
-    console.error("Error connecting to the database:", err);
-    return;
+    console.error("❌ DATABASE CONNECTION FAILED:", err.message);
+    process.exit(1); // Stop the script if DB is not running
   }
-  console.log("Connected to the MySQL database.");
+  console.log("✅ Connected to the MySQL database.");
 });
 
-// 2. Use Routes
 app.use("/api", coupleRoutes(db));
-app.use("/api/admin", adminRoutes(db));
-app.use("/api/gemini", geminiRoute);
 
-// 3. Start Server
-const PORT = process.env.PORT || 5000;
+// 3. Keep the Server Alive
+const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 SERVER IS LIVE AT: http://localhost:${PORT}`);
+  console.log("   Press Ctrl + C to stop the server");
 });
