@@ -4,9 +4,11 @@ import Footer from "../components/Footer";
 import "../styles/main.css";
 
 function CoupleForm() {
-  const coupleId = localStorage.getItem("coupleId");
+  // Retrieve the ID saved during login
+  const coupleID = localStorage.getItem("coupleID");
 
   const [formData, setFormData] = useState({
+    // Husband Data
     husbandFullName: "",
     husbandDOB: "",
     husbandRegion: "",
@@ -14,6 +16,8 @@ function CoupleForm() {
     husbandrhfactor: "",
     husbandgenotype: "",
     HusbandfamilyHistory: "",
+
+    // Wife Data
     wifeFullName: "",
     wifeDOB: "",
     wifeRegion: "",
@@ -32,48 +36,49 @@ function CoupleForm() {
     e.preventDefault();
 
     // 1. Validation Logic
+    // Check if any value in formData is an empty string
     const missingFields = Object.keys(formData).filter(
       (key) => formData[key] === "",
     );
 
     if (missingFields.length > 0) {
       alert("Please fill in all fields before submitting.");
-      return;
+      return; // Stop the function here
     }
 
-    // 2. Session Check
-    if (!coupleId) {
+    // Ensure coupleID exists (user is logged in)
+    if (!coupleID) {
       alert("Session expired. Please log in again.");
-      window.location.href = "/login";
       return;
     }
 
-    // 3. Format data for backend
-    // Backend expects an array of person objects
+    // 2. Data Preparation (Only runs if validation passes)
     const persons = [
       {
+        coupleID: coupleID,
         fullName: formData.husbandFullName,
         role: "Husband",
         dob: formData.husbandDOB,
         gender: "Male",
-        region: parseInt(formData.husbandRegion),
+        region: formData.husbandRegion,
         bloodType: formData.husbandbloodtype,
         rhFactor: formData.husbandrhfactor,
         genotype: formData.husbandgenotype,
         familyHistory: formData.HusbandfamilyHistory,
-        hasAffectedChild: formData.affected === "yes" ? 1 : 0,
+        hasAffectedChild: formData.affected.toLowerCase() === "yes" ? 1 : 0,
       },
       {
+        coupleID: coupleID,
         fullName: formData.wifeFullName,
         role: "Wife",
         dob: formData.wifeDOB,
         gender: "Female",
-        region: parseInt(formData.wifeRegion),
+        region: formData.wifeRegion,
         bloodType: formData.wifebloodtype,
         rhFactor: formData.wiferhfactor,
         genotype: formData.wifegenotype,
         familyHistory: formData.WifefamilyHistory,
-        hasAffectedChild: formData.affected === "yes" ? 1 : 0,
+        hasAffectedChild: formData.affected.toLowerCase() === "yes" ? 1 : 0,
       },
     ];
 
@@ -81,20 +86,17 @@ function CoupleForm() {
       const response = await axios.post(
         "http://localhost:5000/api/save-couple-data",
         {
-          coupleId: coupleId,
+          coupleId: coupleID,
           persons: persons,
         },
       );
 
       if (response.status === 200) {
-        alert(response.data.message || "Assessment submitted successfully!");
-        // Optional: redirect to a results page or reset form
+        alert("Assessment submitted successfully!");
       }
     } catch (error) {
       console.error("Error saving data:", error);
-      alert(
-        "Failed to save data. Please check if your Backend and Flask servers are running.",
-      );
+      alert("Failed to save data. Please check your connection.");
     }
   };
 
@@ -108,23 +110,20 @@ function CoupleForm() {
           </p>
 
           <form className="form-grid" onSubmit={handleSubmit}>
-            {/* Name Fields */}
+            {/* Husband Section */}
             <input
               type="text"
               name="husbandFullName"
               placeholder="Husband Full Name"
               onChange={handleChange}
-              required
             />
             <input
               type="text"
               name="wifeFullName"
               placeholder="Wife Full Name"
               onChange={handleChange}
-              required
             />
 
-            {/* DOB Fields */}
             <input
               type="text"
               name="husbandDOB"
@@ -136,6 +135,7 @@ function CoupleForm() {
               onChange={handleChange}
               required
             />
+
             <input
               type="text"
               name="wifeDOB"
@@ -147,9 +147,7 @@ function CoupleForm() {
               onChange={handleChange}
               required
             />
-
-            {/* Region Selection */}
-            <select name="husbandRegion" onChange={handleChange} required>
+            <select name="husbandRegion" onChange={handleChange}>
               <option value="">Husband's Region</option>
               <option value="1">Beirut</option>
               <option value="2">Mount Lebanon</option>
@@ -162,7 +160,7 @@ function CoupleForm() {
               <option value="9">Nabatieh</option>
             </select>
 
-            <select name="wifeRegion" onChange={handleChange} required>
+            <select name="wifeRegion" onChange={handleChange}>
               <option value="">Wife's Region</option>
               <option value="1">Beirut</option>
               <option value="2">Mount Lebanon</option>
@@ -175,8 +173,7 @@ function CoupleForm() {
               <option value="9">Nabatieh</option>
             </select>
 
-            {/* Blood Type Selection */}
-            <select name="husbandbloodtype" onChange={handleChange} required>
+            <select name="husbandbloodtype" onChange={handleChange}>
               <option value="">Husband's Blood Type</option>
               <option value="O">O</option>
               <option value="A">A</option>
@@ -184,7 +181,7 @@ function CoupleForm() {
               <option value="AB">AB</option>
             </select>
 
-            <select name="wifebloodtype" onChange={handleChange} required>
+            <select name="wifebloodtype" onChange={handleChange}>
               <option value="">Wife's Blood Type</option>
               <option value="O">O</option>
               <option value="A">A</option>
@@ -192,58 +189,48 @@ function CoupleForm() {
               <option value="AB">AB</option>
             </select>
 
-            {/* Rh Factor Selection */}
-            <select name="husbandrhfactor" onChange={handleChange} required>
+            <select name="husbandrhfactor" onChange={handleChange}>
               <option value="">Husband's Rh Factor</option>
               <option value="+">+</option>
               <option value="-">-</option>
             </select>
 
-            <select name="wiferhfactor" onChange={handleChange} required>
+            <select name="wiferhfactor" onChange={handleChange}>
               <option value="">Wife's Rh Factor</option>
               <option value="+">+</option>
               <option value="-">-</option>
             </select>
 
-            {/* Genotype Fields */}
-            <select name="husbandgenotype" onChange={handleChange} required>
-              <option value="">Husband's Genotype</option>
-              <option value="AA">AA</option>
-              <option value="AS">AS</option>
-              <option value="SS">SS</option>
-            </select>
+            <input
+              type="text"
+              name="husbandgenotype"
+              placeholder="Husband's Genotype (AA, AS, SS)"
+              onChange={handleChange}
+            />
+            <input
+              type="text"
+              name="wifegenotype"
+              placeholder="Wife's Genotype (AA, AS, SS)"
+              onChange={handleChange}
+            />
 
-            <select name="wifegenotype" onChange={handleChange} required>
-              <option value="">Wife's Genotype</option>
-              <option value="AA">AA</option>
-              <option value="AS">AS</option>
-              <option value="SS">SS</option>
-            </select>
-
-            {/* History and Affected Child */}
             <textarea
               name="HusbandfamilyHistory"
               placeholder="Husband's Family Medical History"
               onChange={handleChange}
-              required
             />
             <textarea
               name="WifefamilyHistory"
               placeholder="Wife's Family Medical History"
               onChange={handleChange}
-              required
             />
 
-            <select
+            <textarea
+              type="text"
               name="affected"
+              placeholder="Do you have affected child? (Yes/No)"
               onChange={handleChange}
-              style={{ gridColumn: "span 2" }}
-              required
-            >
-              <option value="">Do you have an affected child?</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
+            />
 
             <button
               type="submit"
@@ -252,10 +239,9 @@ function CoupleForm() {
             >
               Submit Form
             </button>
-
-            <div className="form-footer" style={{ gridColumn: "span 2" }}>
+            <div className="form-footer">
               <p>
-                Get AI help?
+                Get Ai help?
                 <a href="/chatbot" className="register-link">
                   {" "}
                   Click Here

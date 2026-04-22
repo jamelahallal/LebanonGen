@@ -4,7 +4,8 @@ const cors = require("cors");
 require("dotenv").config();
 
 const coupleRoutes = require("./routes/CouplesRoute");
-
+const groqRoutes = require("./routes/groq");
+const adminRoutes = require("./routes/adminRoutes");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -26,6 +27,8 @@ db.connect((err) => {
 });
 
 app.use("/api", coupleRoutes(db));
+app.use("/api/ai", groqRoutes(db));
+app.use("/api/admin", adminRoutes(db));
 
 // 3. Keep the Server Alive
 const PORT = 5000;

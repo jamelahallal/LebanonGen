@@ -6,12 +6,11 @@ import "../styles/main.css";
 
 function Drlog() {
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    role: "doctor"
+    role: "doctor",
   });
-  
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,39 +20,98 @@ function Drlog() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // FIX: Add /admin to the URL path
-      const response = await axios.post("http://localhost:5000/api/admin/doctor-login", formData);
-      
+      const response = await axios.post(
+        "http://localhost:5000/api/admin/doctor-login",
+        formData,
+      );
+
       if (response.status === 200) {
         localStorage.setItem("drToken", response.data.token);
         localStorage.setItem("drRole", response.data.role);
-        
-        alert(`Welcome, Dr. ${response.data.name}`); // Use response.data.name from DB
-        navigate("/doctor-dashboard");
+        localStorage.setItem("drName", response.data.name);
+
+        alert(`Access Granted. Welcome, ${response.data.name}`);
+
+        // Route based on the role provided by the database
+        const userRole = response.data.role;
+        if (userRole === "doctor") {
+          navigate("/dashboard/consultant");
+        } else if (userRole === "researcher") {
+          navigate("/dashboard/researcher");
+        } else if (userRole === "admin") {
+          navigate("/dashboard/admin");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+      alert(error.response?.data?.message || "Unauthorized access.");
     }
-};
+  };
 
   return (
-    <div>
-      <div className="form-wrapper">
-        <div className="form-card" style={{ maxWidth: "450px" }}>
-          <h2 style={{ color: "#b30000" }}>Medical Staff Portal</h2>
-          <p className="form-subtitle">Access the genetic analysis dashboard.</p>
+    <div className="page-container">
+      <div className="form-wrapper" style={{ padding: "80px 20px" }}>
+        <div
+          className="form-card"
+          style={{
+            maxWidth: "450px",
+            borderTop: "5px solid #b30000",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "30px" }}>
+            <h2 style={{ color: "#b30000", marginBottom: "10px" }}>
+              LebanonGen
+            </h2>
+            <h4 style={{ color: "#555", fontWeight: "400" }}>
+              Medical Staff Portal
+            </h4>
+            <div
+              style={{
+                height: "2px",
+                width: "50px",
+                background: "#eee",
+                margin: "15px auto",
+              }}
+            ></div>
+          </div>
 
-          <form className="form-grid" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name (e.g., Dr. Smith)"
-              onChange={handleChange}
-              required
-              style={{ gridColumn: "span 2" }}
-            />
-            
+          <p
+            className="form-subtitle"
+            style={{ textAlign: "center", fontSize: "0.9rem" }}
+          >
+            Authorized Personnel Only: Enter your professional credentials to
+            access genetic analytics and regional health data.
+          </p>
+
+          <form
+            className="form-grid"
+            onSubmit={handleSubmit}
+            style={{ marginTop: "25px" }}
+          >
+            <div style={{ gridColumn: "span 2" }}>
+              <label
+                style={{
+                  fontSize: "0.8rem",
+                  color: "#888",
+                  marginBottom: "5px",
+                  display: "block",
+                }}
+              >
+                Staff Role
+              </label>
+              <select
+                name="role"
+                onChange={handleChange}
+                className="form-select"
+                style={{ width: "100%", padding: "12px" }}
+              >
+                <option value="doctor">Medical Consultant</option>
+                <option value="admin">Systems Administrator</option>
+                <option value="researcher">Genetic Researcher</option>
+              </select>
+            </div>
+
             <input
               type="email"
               name="email"
@@ -66,26 +124,38 @@ function Drlog() {
             <input
               type="password"
               name="password"
-              placeholder="Password"
+              placeholder="Security Password"
               onChange={handleChange}
               required
               style={{ gridColumn: "span 2" }}
             />
 
-            <select 
-              name="role" 
-              onChange={handleChange} 
-              style={{ gridColumn: "span 2" }}
-              className="form-select"
+            <button
+              type="submit"
+              className="submit-btn"
+              style={{
+                gridColumn: "span 2",
+                backgroundColor: "#b30000",
+                marginTop: "10px",
+                padding: "15px",
+              }}
             >
-              <option value="doctor">Medical Doctor</option>
-              <option value="admin">System Administrator</option>
-            </select>
-
-            <button type="submit" className="submit-btn" style={{ gridColumn: "span 2" }}>
-              Login to Portal
+              Authenticate & Enter
             </button>
           </form>
+
+          <div style={{ marginTop: "20px", textAlign: "center" }}>
+            <a
+              href="/help"
+              style={{
+                fontSize: "0.8rem",
+                color: "#999",
+                textDecoration: "none",
+              }}
+            >
+              Forgot credentials? Contact System Admin
+            </a>
+          </div>
         </div>
       </div>
       <Footer />

@@ -3,16 +3,16 @@
   min-height: 100vh;
   background-color: #f8f9fa;
   display: flex;
-  justify-content: center;   
-  align-items: flex-start;  
-  padding-top: 120px;       
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 120px;
 }
 
 .chat-section {
   display: flex;
-  justify-content: center; 
-  align-items: center; 
-  padding-top: 200px; 
+  justify-content: center;
+  align-items: center;
+  padding-top: 200px;
   padding-bottom: 40px;
 }
 
@@ -22,10 +22,10 @@
   height: 70vh;
   background: white;
   border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  margin: 0 auto; 
+  margin: 0 auto;
 }
 
 .chat-header {
@@ -33,9 +33,8 @@
   border-bottom: 1px solid #eee;
 }
 
-
 .message-container {
-  flex-grow: 1; 
+  flex-grow: 1;
   overflow-y: auto;
   padding: 20px;
 }
@@ -64,7 +63,11 @@
   margin-left: 8px;
   border-bottom-left-radius: 4px;
 }
-
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
 .user .message-bubble {
   background: #b30000;
   color: white;
@@ -99,7 +102,13 @@
 }
 
 @keyframes blink {
-  0% { opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
 }

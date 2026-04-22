@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const axios = require("axios");
 
 module.exports = (db) => {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
   // 1. AI CHATBOT ROUTE
   router.post("/ai-chat", async (req, res) => {
     const { coupleId, message } = req.body;
@@ -12,38 +10,64 @@ module.exports = (db) => {
     if (!coupleId)
       return res.status(400).json({ reply: "Please log in first." });
 
+    // Fetching the genetic data from your 'person' table
     const sql = "SELECT Role, Genotype FROM person WHERE CoupleID = ?";
 
     db.execute(sql, [coupleId], async (err, results) => {
-      if (err) return res.status(500).json({ reply: "Database error." });
+      if (err) {
+        console.error("DB Error:", err);
+        return res.status(500).json({ reply: "Database error." });
+      }
 
+      // Format context so the AI knows exactly who is who
       const context = results.length
-        ? results.map((r) => `${r.Role}: ${r.Genotype}`).join(", ")
-        : "No genetic data provided yet.";
+        ? results.map((r) => `${r.Role} Genotype: ${r.Genotype}`).join(", ")
+        : "No genetic data provided yet for this couple.";
 
       try {
-        // FIX: Use 'gemini-pro' as it has the highest compatibility with the v1beta endpoint
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const response = await axios.post(
+          "https://api.groq.com/openai/v1/chat/completions",
+          {
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              {
+                role: "system",
+                content: `You are a professional genetic counselor for LebanonGen.
+                
+                PATIENT CONTEXT: ${context}. 
 
-        const prompt = `You are a genetic counselor. Context: ${context}. Question: ${message}`;
+                STRICT RESPONSE GUIDELINES:
+                1. NEVER write long paragraphs. 
+                2. Use Bullet Points for all risks and recommendations.
+                3. Use **Bold Text** for genotypes and percentages (e.g., **25% chance**).
+                4. Use Markdown headers (e.g., ### Risk Assessment) to organize sections.
+                5. If genotypes are missing, politely ask them to update their profile.
+                6. Explain the inheritance of Sickle Cell Anemia based on their specific context.
+                7. ALWAYS end with a medical disclaimer stating this is AI guidance and they must see a doctor.`,
+              },
+              { role: "user", content: message },
+            ],
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
 
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
-
-        return res.status(200).json({ reply: text });
+        const aiReply = response.data.choices[0].message.content;
+        return res.status(200).json({ reply: aiReply });
       } catch (error) {
-        console.error("AI ERROR:", error.message);
-
-        // If 'gemini-pro' also fails, we'll give you a clear descriptive error
+        console.error("GROQ AI ERROR:", error.response?.data || error.message);
         return res.status(500).json({
-          reply:
-            "I'm having trouble accessing my model. Error: " + error.message,
+          reply: "The AI is currently unavailable. Please try again later.",
         });
       }
     });
   });
 
-  // 2. LOGIN
+  // 2. LOGIN (Keeping your existing logic)
   router.post("/login", (req, res) => {
     const { email, password } = req.body;
     const query = "SELECT * FROM couple WHERE Email = ? AND Password = ?";
@@ -60,7 +84,7 @@ module.exports = (db) => {
     });
   });
 
-  // 3. REGISTER
+  // 3. REGISTER (Keeping your existing logic)
   router.post("/register", (req, res) => {
     const { email, password } = req.body;
     const checkUser = "SELECT * FROM couple WHERE Email = ?";
@@ -80,7 +104,7 @@ module.exports = (db) => {
     });
   });
 
-  // 4. SAVE DATA
+  // 4. SAVE DATA (Keeping your existing logic)
   router.post("/save-couple-data", (req, res) => {
     const { coupleId, persons } = req.body;
     const query = `
@@ -93,6 +117,9 @@ module.exports = (db) => {
     `;
 
     let completed = 0;
+    if (!persons || persons.length === 0)
+      return res.status(400).json({ message: "No data to save" });
+
     persons.forEach((person) => {
       db.execute(
         query,
