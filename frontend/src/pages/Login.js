@@ -26,7 +26,7 @@
 
       if (response.ok) {
           // SAVE the ID to localStorage so the form can find it
-          localStorage.setItem("coupleId", data.user.id);   
+          localStorage.setItem("coupleID", data.user.id);   
           navigate("/form"); 
         } else {
           alert(data.message || "Login failed");

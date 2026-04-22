@@ -4,13 +4,13 @@ const axios = require("axios");
 
 module.exports = (db) => {
   // 1. AI CHATBOT ROUTE
+  // 1. AI CHATBOT ROUTE (Updated to save to assessment table)
   router.post("/ai-chat", async (req, res) => {
     const { coupleId, message } = req.body;
 
     if (!coupleId)
       return res.status(400).json({ reply: "Please log in first." });
 
-    // Fetching the genetic data from your 'person' table
     const sql = "SELECT Role, Genotype FROM person WHERE CoupleID = ?";
 
     db.execute(sql, [coupleId], async (err, results) => {
@@ -19,7 +19,6 @@ module.exports = (db) => {
         return res.status(500).json({ reply: "Database error." });
       }
 
-      // Format context so the AI knows exactly who is who
       const context = results.length
         ? results.map((r) => `${r.Role} Genotype: ${r.Genotype}`).join(", ")
         : "No genetic data provided yet for this couple.";
@@ -37,13 +36,10 @@ module.exports = (db) => {
                 PATIENT CONTEXT: ${context}. 
 
                 STRICT RESPONSE GUIDELINES:
-                1. NEVER write long paragraphs. 
-                2. Use Bullet Points for all risks and recommendations.
-                3. Use **Bold Text** for genotypes and percentages (e.g., **25% chance**).
-                4. Use Markdown headers (e.g., ### Risk Assessment) to organize sections.
-                5. If genotypes are missing, politely ask them to update their profile.
-                6. Explain the inheritance of Sickle Cell Anemia based on their specific context.
-                7. ALWAYS end with a medical disclaimer stating this is AI guidance and they must see a doctor.`,
+                1. Use Bullet Points for all risks and recommendations.
+                2. Use **Bold Text** for genotypes and percentages.
+                3. Organize with Markdown headers.
+                4. ALWAYS end with a medical disclaimer.`,
               },
               { role: "user", content: message },
             ],
@@ -57,6 +53,28 @@ module.exports = (db) => {
         );
 
         const aiReply = response.data.choices[0].message.content;
+
+        // --- NEW: SAVE TO ASSESSMENT TABLE ---
+        // We determine a simple risk level based on the AI's context for the database
+        const riskLevel =
+          aiReply.includes("100%") || aiReply.includes("SS")
+            ? "High Risk"
+            : "Moderate/Low Risk";
+
+        const saveSql = `
+          INSERT INTO assessment (CoupleID, RiskLevel, Recommendation, CreatedAt) 
+          VALUES (?, ?, ?, NOW())
+        `;
+
+        db.execute(saveSql, [coupleId, riskLevel, aiReply], (saveErr) => {
+          if (saveErr) {
+            console.error("Failed to save assessment:", saveErr);
+            // We still return the reply to the user even if saving fails
+          }
+          console.log("✅ Assessment results saved to database.");
+        });
+        // -------------------------------------
+
         return res.status(200).json({ reply: aiReply });
       } catch (error) {
         console.error("GROQ AI ERROR:", error.response?.data || error.message);
@@ -104,16 +122,25 @@ module.exports = (db) => {
     });
   });
 
-  // 4. SAVE DATA (Keeping your existing logic)
+  //  4. SAVE DATA & CALCULATE ASSESSMENT
   router.post("/save-couple-data", (req, res) => {
     const { coupleId, persons } = req.body;
-    const query = `
+
+    // First Query: Save or Update person data in the 'person' table
+    const personQuery = `
       INSERT INTO person 
-      (CoupleID, Role, FullName, Genotype, BloodType, RhFactor) 
-      VALUES (?, ?, ?, ?, ?, ?)
+      (CoupleID, Role, FullName, Gender, Genotype, BloodType, RhFactor, DateOfBirth, RegionID, FamilyHistory, HasAffectedChild) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE 
       FullName = VALUES(FullName),
-      Genotype = VALUES(Genotype)
+      Gender = VALUES(Gender),
+      Genotype = VALUES(Genotype),
+      BloodType = VALUES(BloodType),
+      RhFactor = VALUES(RhFactor),
+      DateOfBirth = VALUES(DateOfBirth),
+      RegionID = VALUES(RegionID),
+      FamilyHistory = VALUES(FamilyHistory),
+      HasAffectedChild = VALUES(HasAffectedChild)
     `;
 
     let completed = 0;
@@ -122,22 +149,102 @@ module.exports = (db) => {
 
     persons.forEach((person) => {
       db.execute(
-        query,
-        [
-          coupleId,
-          person.role,
-          person.fullName,
-          person.genotype,
-          person.bloodType,
-          person.rhFactor,
-        ],
+      personQuery,
+      [
+        coupleId,
+        person.role,
+        person.fullName,
+        person.gender,      
+        person.genotype,
+        person.bloodType,
+        person.rhFactor,
+        person.dob,
+        person.region,
+        person.familyHistory,
+        person.hasAffectedChild
+      ],
         (err) => {
+          if (err) console.error("Error saving person:", err);
           completed++;
+
+          // Once both Husband and Wife records are saved, calculate the assessment
           if (completed === persons.length) {
-            return res.status(200).json({ message: "Sync successful" });
+            
+            // --- CALCULATION LOGIC FOR SICKLE CELL ANEMIA ---
+            const husbandG = persons.find((p) => p.role === "Husband").genotype.toUpperCase();
+            const wifeG = persons.find((p) => p.role === "Wife").genotype.toUpperCase();
+
+            let probability = 0.0;
+            let riskLevel = "Low Risk";
+            let recommendation = "Genetically compatible for Sickle Cell Anemia.";
+
+            // Logic based on standard Punnett square results
+            if (husbandG === "AS" && wifeG === "AS") {
+              probability = 25.0;
+              riskLevel = "High Risk";
+              recommendation = "25% chance of offspring having Sickle Cell Anemia (SS). Genetic counseling recommended.";
+            } else if ((husbandG === "AS" && wifeG === "SS") || (husbandG === "SS" && wifeG === "AS")) {
+              probability = 50.0;
+              riskLevel = "Very High Risk";
+              recommendation = "50% chance of offspring having Sickle Cell Anemia (SS). Seek medical advice.";
+            } else if (husbandG === "SS" && wifeG === "SS") {
+              probability = 100.0;
+              riskLevel = "Critical";
+              recommendation = "100% chance of offspring having Sickle Cell Anemia (SS). High risk of inheritance.";
+            } else if (husbandG === "AA" && (wifeG === "AS" || wifeG === "SS") || wifeG === "AA" && (husbandG === "AS" || husbandG === "SS")) {
+              probability = 0.0;
+              riskLevel = "Carrier Risk";
+              recommendation = "No risk of SS disease in children, but offspring may be carriers (AS).";
+            }
+
+            // Second Query: Save the final result into the 'assessment' table
+            const assessmentQuery = `
+              INSERT INTO assessment (CoupleID, Probability, RiskLevel, Recommendation, CreatedAt)
+              VALUES (?, ?, ?, ?, NOW())
+            `;
+
+            db.execute(
+              assessmentQuery,
+              [coupleId, probability, riskLevel, recommendation],
+              (assessErr) => {
+                if (assessErr) {
+                  console.error("Assessment Save Error:", assessErr);
+                  return res.status(500).json({ error: "Data saved, but assessment entry failed." });
+                }
+                return res.status(200).json({
+                  message: "Data saved and assessment generated successfully!",
+                  assessment: { probability, riskLevel, recommendation }
+                });
+              }
+            );
           }
-        },
+        }
       );
+    });
+  });
+
+   // 5. API to get region status stats for dashboard
+  router.get("/region-status-stats", (req, res) => {
+    const query = `
+      SELECT 
+        r.Name as region,
+        r.RegionID,
+        COUNT(CASE WHEN p.Genotype = 'AS' THEN 1 END) as carriers,
+        COUNT(CASE WHEN p.Genotype = 'SS' THEN 1 END) as infected
+      FROM region r
+      LEFT JOIN person p ON r.RegionID = p.RegionID
+      GROUP BY r.RegionID, r.Name
+      ORDER BY r.RegionID
+    `;
+    
+    db.execute(query, (error, results) => {
+      if (error) {
+        console.error("Error fetching region stats:", error);
+        return res.status(500).json({ error: "Database error: " + error.message });
+      }
+      
+      console.log("Region stats results:", results);
+      res.json(results);
     });
   });
 
