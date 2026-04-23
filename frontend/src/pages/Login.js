@@ -70,6 +70,9 @@
             <p>Don't have an account? 
               <a href="/register" className="register-link"> Register here</a>
             </p>
+            <p>Forget Password? Contact
+              <a href="/#" className="register-link">samir.admin@lebanongen.com</a>
+            </p>
           </div>
         </div>
       </div>

@@ -7,8 +7,7 @@ import "../styles/main.css";
 function Drlog() {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
-    role: "doctor",
+    password: ""
   });
 
   const navigate = useNavigate();
@@ -29,6 +28,7 @@ function Drlog() {
         localStorage.setItem("drToken", response.data.token);
         localStorage.setItem("drRole", response.data.role);
         localStorage.setItem("drName", response.data.name);
+        localStorage.setItem("drEmail", formData.email);
 
         alert(`Access Granted. Welcome, ${response.data.name}`);
 
@@ -89,28 +89,6 @@ function Drlog() {
             onSubmit={handleSubmit}
             style={{ marginTop: "25px" }}
           >
-            <div style={{ gridColumn: "span 2" }}>
-              <label
-                style={{
-                  fontSize: "0.8rem",
-                  color: "#888",
-                  marginBottom: "5px",
-                  display: "block",
-                }}
-              >
-                Staff Role
-              </label>
-              <select
-                name="role"
-                onChange={handleChange}
-                className="form-select"
-                style={{ width: "100%", padding: "12px" }}
-              >
-                <option value="doctor">Medical Consultant</option>
-                <option value="admin">Systems Administrator</option>
-                <option value="researcher">Genetic Researcher</option>
-              </select>
-            </div>
 
             <input
               type="email"
