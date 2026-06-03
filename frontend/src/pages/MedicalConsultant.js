@@ -25,16 +25,6 @@ function MedicalConsultant() {
     return parseFloat(prob);
   };
 
-  //risk thresholds to evaluate whole percentage numbers out of 100
-  const getRiskLevel = (probability) => {
-    const percent = parsePercent(probability);
-    if (percent >= 75.0) return "CRITICAL";
-    if (percent >= 45.0) return "VERY HIGH RISK";
-    if (percent >= 20.0) return "HIGH RISK";
-    if (percent >= 5.0) return "CARRIER RISK";
-    return "LOW RISK";
-  };
-
   // colors mapped perfectly to the clean strings
   const getRiskColor = (riskLevel) => {
     switch (riskLevel) {
@@ -69,8 +59,10 @@ function MedicalConsultant() {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/admin/couple-details/${encodeURIComponent(email)}`,
       );
-      setSelectedCouple(response.data);
-    } catch (error) {
+setSelectedCouple({
+  ...response.data,
+  riskLevel: response.data.riskLevel?.toUpperCase(),
+});    } catch (error) {
       console.error("Error fetching couple details:", error);
       alert("Failed to load couple details");
     } finally {
@@ -93,11 +85,11 @@ function MedicalConsultant() {
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/admin/assessments`)
       .then((res) => {
-        const normalizedData = res.data.map((item) => ({
-          ...item,
-          percentValue: Math.round(parsePercent(item.Probability)), // Save clean whole number directly
-          riskLevel: getRiskLevel(item.Probability),
-        }));
+const normalizedData = res.data.map((item) => ({
+  ...item,
+  percentValue: Math.round(parsePercent(item.Probability)),
+  riskLevel: item.RiskLevel?.toUpperCase(),
+}));
         setData(normalizedData);
         setLoading(false);
       })
