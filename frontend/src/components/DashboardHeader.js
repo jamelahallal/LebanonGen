@@ -45,7 +45,7 @@ function DashboardHeader({ title, subtitle, userEmail, userRole }) {
       {/* Top Navigation Bar - Compact version */}
       <nav className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-end items-center h-20">
+          <div className="flex justify-end items-center h-16 sm:h-20">
             {/* User Info & Logout Button - Right side */}
             <div className="flex items-center space-x-4">
               {/* User Details */}
@@ -69,7 +69,7 @@ function DashboardHeader({ title, subtitle, userEmail, userRole }) {
                     </span>
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full border ${getRoleBadgeColor(
-                        userRole
+                        userRole,
                       )}`}
                     >
                       {userRole?.charAt(0).toUpperCase() + userRole?.slice(1) ||
@@ -112,7 +112,7 @@ function DashboardHeader({ title, subtitle, userEmail, userRole }) {
               <h2 className="text-xl font-bold text-gray-800">{title}</h2>
               <p className="text-sm text-gray-600 mt-0.5">{subtitle}</p>
             </div>
-            
+
             {/* Quick Stats or Additional Info */}
             <div className="hidden lg:block text-right">
               <p className="text-xs text-gray-500">Session Active</p>

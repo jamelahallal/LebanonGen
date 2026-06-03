@@ -74,7 +74,6 @@ function CoupleForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const missingFields = Object.keys(formData).filter(
       (key) => formData[key] === "",
     );
@@ -82,7 +81,6 @@ function CoupleForm() {
       alert("Please fill in all fields before submitting.");
       return;
     }
-
     if (!coupleID) {
       alert("Session expired. Please log in again.");
       return;
@@ -123,10 +121,7 @@ function CoupleForm() {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/save-couple-data`,
-        {
-          coupleId: coupleID,
-          persons,
-        },
+        { coupleId: coupleID, persons },
       );
 
       if (response.status === 200) {
@@ -134,17 +129,18 @@ function CoupleForm() {
         setAssessment(result);
         setExistingData({
           assessment: result,
-          husband: persons.find((p) => p.role === "Husband"),
-          wife: persons.find((p) => p.role === "Wife"),
+          husband: persons[0],
+          wife: persons[1],
         });
-        setTimeout(() => {
-          document
-            .getElementById("result-card")
-            ?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+        setTimeout(
+          () =>
+            document
+              .getElementById("result-card")
+              ?.scrollIntoView({ behavior: "smooth" }),
+          100,
+        );
       }
     } catch (error) {
-      console.error("Error saving data:", error);
       alert("Failed to save data. Please check your connection.");
     } finally {
       setLoading(false);
@@ -153,31 +149,11 @@ function CoupleForm() {
 
   if (checking) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              border: "4px solid #f0f0f0",
-              borderTop: "4px solid #b30000",
-              borderRadius: "50%",
-              animation: "spin 0.8s linear infinite",
-              margin: "0 auto 16px",
-            }}
-          />
-          <p style={{ color: "#777", fontSize: "14px" }}>
-            Loading your data...
-          </p>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-100 border-t-red-700 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 text-sm">Loading your data...</p>
         </div>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -185,249 +161,68 @@ function CoupleForm() {
   const ResultCard = ({ assessmentData, husband, wife }) => (
     <div
       id="result-card"
-      style={{
-        width: "100%",
-        maxWidth: "800px",
-        background: "white",
-        borderRadius: "12px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-        overflow: "hidden",
-        animation: "fadeSlideIn 0.5s ease",
-      }}
+      className="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden"
     >
       <div
-        style={{
-          background: `linear-gradient(135deg, ${getRiskColor(assessmentData.riskLevel)}, ${getRiskColor(assessmentData.riskLevel)}cc)`,
-          padding: "24px 32px",
-          color: "white",
-        }}
+        style={{ backgroundColor: getRiskColor(assessmentData.riskLevel) }}
+        className="p-6 text-white"
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontSize: "28px" }}>
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">
             {getRiskIcon(assessmentData.riskLevel)}
           </span>
           <div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "13px",
-                opacity: 0.85,
-                letterSpacing: "1px",
-                textTransform: "uppercase",
-              }}
-            >
+            <p className="text-xs uppercase opacity-80 tracking-widest">
               Assessment Result
             </p>
-            <h3 style={{ margin: 0, fontSize: "22px", fontWeight: "700" }}>
-              {assessmentData.riskLevel}
-            </h3>
+            <h3 className="text-xl font-bold">{assessmentData.riskLevel}</h3>
           </div>
         </div>
       </div>
-
-      <div style={{ padding: "28px 32px" }}>
-        <div style={{ marginBottom: "24px" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "8px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "13px",
-                color: "#777",
-                fontWeight: "600",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
+      <div className="p-6 sm:p-8">
+        <div className="mb-6">
+          <div className="flex justify-between mb-2">
+            <span className="text-xs font-bold text-gray-500 uppercase">
               Risk Probability
             </span>
             <span
-              style={{
-                fontSize: "20px",
-                fontWeight: "800",
-                color: getRiskColor(assessmentData.riskLevel),
-              }}
+              style={{ color: getRiskColor(assessmentData.riskLevel) }}
+              className="text-xl font-black"
             >
               {assessmentData.probability}%
             </span>
           </div>
-          <div
-            style={{
-              background: "#f0f0f0",
-              borderRadius: "999px",
-              height: "10px",
-              overflow: "hidden",
-            }}
-          >
+          <div className="w-full bg-gray-200 rounded-full h-3">
             <div
               style={{
                 width: `${assessmentData.probability}%`,
-                height: "100%",
-                background: `linear-gradient(90deg, ${getRiskColor(assessmentData.riskLevel)}, ${getRiskColor(assessmentData.riskLevel)}99)`,
-                borderRadius: "999px",
-                transition: "width 1s ease",
+                backgroundColor: getRiskColor(assessmentData.riskLevel),
               }}
+              className="h-full rounded-full transition-all duration-1000"
             />
           </div>
         </div>
-
-        <div
-          style={{
-            background: "#fdf5f5",
-            border: `1px solid ${getRiskColor(assessmentData.riskLevel)}33`,
-            borderLeft: `4px solid ${getRiskColor(assessmentData.riskLevel)}`,
-            borderRadius: "8px",
-            padding: "16px 20px",
-            marginBottom: "20px",
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              fontSize: "13px",
-              color: "#777",
-              fontWeight: "600",
-              marginBottom: "6px",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-            }}
-          >
+        <div className="p-4 bg-red-50 border-l-4 border-red-700 rounded mb-6 text-sm text-gray-700">
+          <p className="font-bold uppercase text-xs mb-1 text-gray-500">
             Recommendation
           </p>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "15px",
-              color: "#333",
-              lineHeight: "1.6",
-            }}
-          >
-            {assessmentData.recommendation}
-          </p>
+          {assessmentData.recommendation}
         </div>
-
-        <div style={{ display: "flex", gap: "12px" }}>
-          <div
-            style={{
-              flex: 1,
-              background: "#f6f7fb",
-              borderRadius: "8px",
-              padding: "14px 16px",
-              textAlign: "center",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: "11px",
-                color: "#999",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Husband
-            </p>
-            <p style={{ margin: "4px 0 2px", fontSize: "14px", color: "#555" }}>
-              {husband?.fullName || "—"}
-            </p>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "20px",
-                fontWeight: "800",
-                color: "#b30000",
-              }}
-            >
-              {(husband?.genotype || "").toUpperCase()}
-            </p>
-          </div>
-          <div
-            style={{
-              flex: 1,
-              background: "#f6f7fb",
-              borderRadius: "8px",
-              padding: "14px 16px",
-              textAlign: "center",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: "11px",
-                color: "#999",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Wife
-            </p>
-            <p style={{ margin: "4px 0 2px", fontSize: "14px", color: "#555" }}>
-              {wife?.fullName || "—"}
-            </p>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "20px",
-                fontWeight: "800",
-                color: "#b30000",
-              }}
-            >
-              {(wife?.genotype || "").toUpperCase()}
-            </p>
-          </div>
+        <div className="grid grid-cols-2 gap-4">
+          {[husband, wife].map((p, i) => (
+            <div key={i} className="bg-gray-50 p-4 rounded text-center">
+              <p className="text-[10px] text-gray-400 uppercase">{p?.role}</p>
+              <p className="text-sm font-bold text-gray-700">{p?.fullName}</p>
+              <p className="text-xl font-black text-red-700">
+                {p?.genotype.toUpperCase()}
+              </p>
+            </div>
+          ))}
         </div>
-
-        {assessmentData.createdAt && (
-          <p
-            style={{
-              margin: "16px 0 0",
-              fontSize: "12px",
-              color: "#bbb",
-              textAlign: "center",
-            }}
-          >
-            Submitted on{" "}
-            {new Date(assessmentData.createdAt).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-        )}
-        <p
-          style={{
-            margin: "8px 0 0",
-            fontSize: "12px",
-            color: "#aaa",
-            textAlign: "center",
-          }}
-        >
-          ⚕️ This result is for informational purposes only. Please consult a
-          licensed genetic counselor.
-        </p>
-
-        {/* Dynamic Chat Link for Saved Assessment State */}
-        <div style={{ marginTop: "24px", textAlign: "center" }}>
+        <div className="mt-8 text-center">
           <Link
             to="/chatbot"
-            style={{
-              display: "inline-block",
-              padding: "10px 20px",
-              backgroundColor: "#b30000",
-              color: "white",
-              textDecoration: "none",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: "600",
-              boxShadow: "0 4px 12px rgba(179,0,0,0.2)",
-              transition: "background 0.2s ease",
-            }}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "#900000")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "#b30000")}
+            className="inline-block px-6 py-3 bg-red-700 text-white rounded-lg font-bold shadow-lg hover:bg-red-900 transition"
           >
             💬 Discuss Results with AI Counselor
           </Link>
@@ -438,219 +233,184 @@ function CoupleForm() {
 
   if (existingData && assessment) {
     return (
-      <div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "120px 20px 80px 20px",
-            minHeight: "calc(100vh - 160px)",
-            gap: "30px",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: "800px",
-              width: "100%",
-              background: "#fff8e1",
-              border: "1px solid #f9a825",
-              borderLeft: "4px solid #f9a825",
-              borderRadius: "10px",
-              padding: "16px 24px",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-            }}
-          >
-            <span>🔒</span>
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontWeight: "700",
-                  color: "#7a5c00",
-                  fontSize: "15px",
-                }}
-              >
-                Form Locked
-              </p>
-              <p
-                style={{
-                  margin: "4px 0 0",
-                  color: "#9a7000",
-                  fontSize: "13px",
-                }}
-              >
-                Your genetic assessment has already been submitted. Your results
-                are permanently saved below.
-              </p>
-            </div>
-          </div>
-          <ResultCard
-            assessmentData={existingData.assessment}
-            husband={existingData.husband}
-            wife={existingData.wife}
-          />
+      <div className="min-h-screen p-6 sm:p-12 flex flex-col items-center">
+        <div className="max-w-2xl w-full bg-yellow-50 border-l-4 border-yellow-600 p-4 rounded mb-8">
+          <p className="font-bold text-yellow-800">Form Locked</p>
+          <p className="text-sm text-yellow-700">
+            Your genetic assessment is already submitted.
+          </p>
         </div>
+        <ResultCard
+          assessmentData={existingData.assessment}
+          husband={existingData.husband}
+          wife={existingData.wife}
+        />
         <Footer />
       </div>
     );
   }
 
   return (
-    <div>
-      <div
-        className="form-wrapper"
-        style={{ flexDirection: "column", alignItems: "center", gap: "30px" }}
-      >
-        <div className="form-card" style={{ maxWidth: "800px" }}>
-          <h2 style={{ color: "#b30000" }}>Couple Genetic Compatibility</h2>
-          <p className="form-subtitle" style={{ marginBottom: "8px" }}>
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 flex justify-center items-center p-4">
+        <div className="w-full max-w-3xl bg-white p-6 sm:p-10 rounded-2xl shadow-xl">
+          <h2 className="text-red-700 text-2xl font-bold mb-2">
+            Couple Genetic Compatibility
+          </h2>
+          <p className="text-sm text-gray-600 mb-6">
             Analyze the probability of passing sickle cell disease to children.
           </p>
 
-          {/* General navigation helper on the active intake layout */}
-          <p style={{ fontSize: "13px", color: "#666", marginBottom: "20px" }}>
-            Have questions before filling out the fields?{" "}
-            <Link
-              to="/chatbot"
-              style={{
-                color: "#b30000",
-                fontWeight: "600",
-                textDecoration: "underline",
-              }}
-            >
-              Chat with our AI Counselor
-            </Link>
-          </p>
-
-          <form className="form-grid" onSubmit={handleSubmit}>
+          <form
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            onSubmit={handleSubmit}
+          >
             <input
               type="text"
               name="husbandFullName"
               placeholder="Husband Full Name"
               onChange={handleChange}
+              className="p-3 border rounded w-full"
             />
             <input
               type="text"
               name="wifeFullName"
               placeholder="Wife Full Name"
               onChange={handleChange}
+              className="p-3 border rounded w-full"
             />
-
             <input
               type="text"
               name="husbandDOB"
-              placeholder="Husband's Date of Birth"
+              placeholder="Husband DOB"
               onFocus={(e) => (e.target.type = "date")}
-              onBlur={(e) => {
-                if (e.target.value === "") e.target.type = "text";
-              }}
               onChange={handleChange}
+              className="p-3 border rounded w-full"
               required
             />
             <input
               type="text"
               name="wifeDOB"
-              placeholder="Wife's Date of Birth"
+              placeholder="Wife DOB"
               onFocus={(e) => (e.target.type = "date")}
-              onBlur={(e) => {
-                if (e.target.value === "") e.target.type = "text";
-              }}
               onChange={handleChange}
+              className="p-3 border rounded w-full"
               required
             />
-
-            <select name="husbandRegion" onChange={handleChange}>
+            <select
+              name="husbandRegion"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
               <option value="">Husband's Region</option>
-              <option value="1">Beirut</option>
-              <option value="2">Mount Lebanon</option>
-              <option value="3">Keserwan-Jbeil</option>
-              <option value="4">North</option>
-              <option value="5">Akkar</option>
-              <option value="6">Bekaa</option>
-              <option value="7">Baalbek-Hermel</option>
-              <option value="8">South</option>
-              <option value="9">Nabatieh</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                <option key={n} value={n}>
+                  Region {n}
+                </option>
+              ))}
             </select>
-            <select name="wifeRegion" onChange={handleChange}>
+            <select
+              name="wifeRegion"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
               <option value="">Wife's Region</option>
-              <option value="1">Beirut</option>
-              <option value="2">Mount Lebanon</option>
-              <option value="3">Keserwan-Jbeil</option>
-              <option value="4">North</option>
-              <option value="5">Akkar</option>
-              <option value="6">Bekaa</option>
-              <option value="7">Baalbek-Hermel</option>
-              <option value="8">South</option>
-              <option value="9">Nabatieh</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                <option key={n} value={n}>
+                  Region {n}
+                </option>
+              ))}
             </select>
-
-            <select name="husbandbloodtype" onChange={handleChange}>
-              <option value="">Husband's Blood Type</option>
+            <select
+              name="husbandbloodtype"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Husband Blood Type</option>
               <option value="O">O</option>
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="AB">AB</option>
             </select>
-            <select name="wifebloodtype" onChange={handleChange}>
-              <option value="">Wife's Blood Type</option>
+            <select
+              name="wifebloodtype"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Wife Blood Type</option>
               <option value="O">O</option>
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="AB">AB</option>
             </select>
-
-            <select name="husbandrhfactor" onChange={handleChange}>
-              <option value="">Husband's Rh Factor</option>
+            <select
+              name="husbandrhfactor"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Husband Rh</option>
               <option value="+">+</option>
               <option value="-">-</option>
             </select>
-            <select name="wiferhfactor" onChange={handleChange}>
-              <option value="">Wife's Rh Factor</option>
+            <select
+              name="wiferhfactor"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Wife Rh</option>
               <option value="+">+</option>
               <option value="-">-</option>
             </select>
-
-            <select name="husbandgenotype" onChange={handleChange}>
-              <option value="">Husband's Genotype</option>
+            <select
+              name="husbandgenotype"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Husband Genotype</option>
               <option value="AA">AA</option>
               <option value="AS">AS</option>
               <option value="SS">SS</option>
             </select>
-            <select name="wifegenotype" onChange={handleChange}>
-              <option value="">Wife's Genotype</option>
+            <select
+              name="wifegenotype"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Wife Genotype</option>
               <option value="AA">AA</option>
               <option value="AS">AS</option>
               <option value="SS">SS</option>
             </select>
-
-            <select name="HusbandfamilyHistory" onChange={handleChange}>
-              <option value="">Is husband's family affected?</option>
+            <select
+              name="HusbandfamilyHistory"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Husband Family Affected?</option>
               <option value="1">Yes</option>
               <option value="0">No</option>
             </select>
-            <select name="WifefamilyHistory" onChange={handleChange}>
-              <option value="">Is wife's family affected?</option>
+            <select
+              name="WifefamilyHistory"
+              onChange={handleChange}
+              className="p-3 border rounded w-full"
+            >
+              <option value="">Wife Family Affected?</option>
               <option value="1">Yes</option>
               <option value="0">No</option>
             </select>
             <select
               name="affected"
               onChange={handleChange}
-              style={{ gridColumn: "span 2" }}
+              className="md:col-span-2 p-3 border rounded w-full"
             >
               <option value="">Do you have an affected child together?</option>
               <option value="1">Yes</option>
               <option value="0">No</option>
             </select>
-
             <button
               type="submit"
-              className="submit-btn"
-              style={{ gridColumn: "span 2" }}
+              className="md:col-span-2 bg-red-700 text-white p-4 rounded font-bold hover:bg-red-900 transition"
               disabled={loading}
             >
               {loading ? "Analyzing..." : "Submit Form"}

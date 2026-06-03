@@ -61,8 +61,9 @@ function Dashboard() {
 
   return (
     <div className="w-screen h-screen relative overflow-hidden bg-slate-900">
-      {/* 🧭 Floating Glassmorphic Info Card (Top Right) */}
-      <div className="absolute top-4 right-4 z-[1001] bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-gray-200/80 max-w-sm pointer-events-auto">
+      {/* 🧭 Floating Glassmorphic Info Card */}
+      {/* Responsive adjustments: inset-x-4 for mobile, top/right positioning for desktop */}
+      <div className="absolute top-4 inset-x-4 md:right-4 md:left-auto z-[1001] bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-gray-200/80 max-w-sm pointer-events-auto">
         <h1 className="text-sm font-bold text-gray-900 tracking-tight flex items-center gap-2">
           📊 Website Test Diagnostics
         </h1>

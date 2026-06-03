@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "../styles/login.css"; 
+import { useNavigate } from "react-router-dom";
+import "../styles/login.css";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -7,6 +8,8 @@ function Register() {
     password: "",
     confirmPassword: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,18 +23,22 @@ function Register() {
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        }),
-      });
-      
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        },
+      );
+
       const data = await response.json();
       if (response.ok) {
         alert("Registration successful! You can now log in.");
+        navigate("/login");
       } else {
         alert(data.message || "Registration failed");
       }
@@ -77,9 +84,19 @@ function Register() {
             Register
           </button>
         </form>
-        
-        <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
-          Already have an account? <a href="/login" style={{ color: '#b30000', textDecoration: 'none', fontWeight: 'bold' }}>Sign In</a>
+
+        <p style={{ marginTop: "20px", textAlign: "center", fontSize: "14px" }}>
+          Already have an account?{" "}
+          <a
+            href="/login"
+            style={{
+              color: "#b30000",
+              textDecoration: "none",
+              fontWeight: "bold",
+            }}
+          >
+            Sign In
+          </a>
         </p>
       </div>
     </div>

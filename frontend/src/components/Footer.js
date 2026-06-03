@@ -7,9 +7,9 @@ export default function Footer() {
   return (
     <footer className="relative bg-white overflow-hidden">
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-8 z-10">
-        {/* Column 1: Brand */}
-        <div className="flex flex-col items-start space-y-2">
+      <div className="relative max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-12 z-10">
+        {/* Column 1: Brand (Centered on mobile, left-aligned on md+) */}
+        <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-2">
           <Link to="/" className="flex items-center gap-3">
             <GiDna2 className="text-red-600 text-3xl" />
             <div className="flex flex-col leading-tight">
@@ -29,19 +29,19 @@ export default function Footer() {
           <div className="flex space-x-4 mt-3">
             <a
               href="#"
-              className="text-gray-600 hover:text-red-600 transform hover:scale-110 transition duration-300"
+              className="text-gray-600 hover:text-red-600 transition duration-300"
             >
               <FaFacebookF />
             </a>
             <a
               href="#"
-              className="text-gray-600 hover:text-red-600 transform hover:scale-110 transition duration-300"
+              className="text-gray-600 hover:text-red-600 transition duration-300"
             >
               <FaTwitter />
             </a>
             <a
               href="#"
-              className="text-gray-600 hover:text-red-600 transform hover:scale-110 transition duration-300"
+              className="text-gray-600 hover:text-red-600 transition duration-300"
             >
               <FaInstagram />
             </a>
@@ -49,38 +49,35 @@ export default function Footer() {
         </div>
 
         {/* Column 2: Quick Links */}
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col items-center md:items-start space-y-2">
           <h4 className="text-lg font-semibold mb-2 text-gray-900">
             Navigation
           </h4>
-          <Link
-            to="/"
-            className="hover:text-red-600 transform hover:text-bold text-gray-700"
-          >
+          <Link to="/" className="hover:text-red-600 text-gray-700 transition">
             Home
           </Link>
           <Link
             to="/about"
-            className="hover:text-red-600 transform hover:text-bold text-gray-700"
+            className="hover:text-red-600 text-gray-700 transition"
           >
             About Us
           </Link>
           <Link
             to="/dashboard"
-            className="hover:text-red-600 transform hover:text-bold text-gray-700"
+            className="hover:text-red-600 text-gray-700 transition"
           >
             Health Dashboard
           </Link>
           <Link
             to="/login"
-            className="hover:text-red-600 transform hover:text-bold text-gray-700"
+            className="hover:text-red-600 text-gray-700 transition"
           >
             Login
           </Link>
         </div>
 
         {/* Column 3: Contact */}
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col items-center md:items-start space-y-2">
           <h4 className="text-lg font-semibold mb-2 text-gray-900">Contact</h4>
           <p className="flex items-center gap-2 text-gray-700">
             <MdLocationOn className="text-red-600" /> Beirut, Lebanon

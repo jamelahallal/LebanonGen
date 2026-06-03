@@ -11,21 +11,9 @@ function MedicalConsultant() {
   const [showModal, setShowModal] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
 
-  // Helper: Normalize probability to 0-1 range
-  const normalizeProbability = (prob) => {
-    if (prob === null || prob === undefined) return 0;
-    if (prob >= 0 && prob <= 1) return prob;
-    if (prob > 1 && prob <= 100) return prob / 100;
-    if (prob > 100) return 1;
-    return 0;
-  };
+  const parsePercent = (prob) =>
+    prob === null || prob === undefined ? 0 : parseFloat(prob);
 
-  const parsePercent = (prob) => {
-    if (prob === null || prob === undefined) return 0;
-    return parseFloat(prob);
-  };
-
-  // colors mapped perfectly to the clean strings
   const getRiskColor = (riskLevel) => {
     switch (riskLevel) {
       case "CRITICAL":
@@ -41,7 +29,6 @@ function MedicalConsultant() {
     }
   };
 
-  // visual progress bar color picker to match whole percents
   const getProgressColor = (probability) => {
     const percent = parsePercent(probability);
     if (percent >= 75.0) return "bg-red-600";
@@ -51,7 +38,6 @@ function MedicalConsultant() {
     return "bg-green-500";
   };
 
-  // Handle View Report click
   const handleViewReport = async (email) => {
     setModalLoading(true);
     setShowModal(true);
@@ -59,10 +45,11 @@ function MedicalConsultant() {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/admin/couple-details/${encodeURIComponent(email)}`,
       );
-setSelectedCouple({
-  ...response.data,
-  riskLevel: response.data.riskLevel?.toUpperCase(),
-});    } catch (error) {
+      setSelectedCouple({
+        ...response.data,
+        riskLevel: response.data.riskLevel?.toUpperCase(),
+      });
+    } catch (error) {
       console.error("Error fetching couple details:", error);
       alert("Failed to load couple details");
     } finally {
@@ -70,26 +57,22 @@ setSelectedCouple({
     }
   };
 
-  // Close modal
   const closeModal = () => {
     setShowModal(false);
     setSelectedCouple(null);
   };
 
   useEffect(() => {
-    const email = localStorage.getItem("drEmail");
-    const role = localStorage.getItem("drRole");
-    setUserEmail(email);
-    setUserRole(role);
-
+    setUserEmail(localStorage.getItem("drEmail"));
+    setUserRole(localStorage.getItem("drRole"));
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/admin/assessments`)
       .then((res) => {
-const normalizedData = res.data.map((item) => ({
-  ...item,
-  percentValue: Math.round(parsePercent(item.Probability)),
-  riskLevel: item.RiskLevel?.toUpperCase(),
-}));
+        const normalizedData = res.data.map((item) => ({
+          ...item,
+          percentValue: Math.round(parsePercent(item.Probability)),
+          riskLevel: item.RiskLevel?.toUpperCase(),
+        }));
         setData(normalizedData);
         setLoading(false);
       })
@@ -99,22 +82,44 @@ const normalizedData = res.data.map((item) => ({
       });
   }, []);
 
-  const totalCases = data.length;
-  const criticalCases = data.filter(
-    (item) => item.riskLevel === "CRITICAL",
-  ).length;
-  const veryHighRiskCases = data.filter(
-    (item) => item.riskLevel === "VERY HIGH RISK",
-  ).length;
-  const highRiskCases = data.filter(
-    (item) => item.riskLevel === "HIGH RISK",
-  ).length;
-  const carrierCases = data.filter(
-    (item) => item.riskLevel === "CARRIER RISK",
-  ).length;
-  const lowRiskCases = data.filter(
-    (item) => item.riskLevel === "LOW RISK",
-  ).length;
+  const stats = [
+    {
+      label: "Critical",
+      val: data.filter((i) => i.riskLevel === "CRITICAL").length,
+      color: "border-red-600",
+      text: "text-red-600",
+    },
+    {
+      label: "Very High",
+      val: data.filter((i) => i.riskLevel === "VERY HIGH RISK").length,
+      color: "border-orange-700",
+      text: "text-orange-700",
+    },
+    {
+      label: "High Risk",
+      val: data.filter((i) => i.riskLevel === "HIGH RISK").length,
+      color: "border-orange-500",
+      text: "text-orange-500",
+    },
+    {
+      label: "Carrier",
+      val: data.filter((i) => i.riskLevel === "CARRIER RISK").length,
+      color: "border-yellow-400",
+      text: "text-yellow-600",
+    },
+    {
+      label: "Low Risk",
+      val: data.filter((i) => i.riskLevel === "LOW RISK").length,
+      color: "border-green-500",
+      text: "text-green-600",
+    },
+    {
+      label: "Total",
+      val: data.length,
+      color: "border-blue-500",
+      text: "text-blue-600",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -124,388 +129,124 @@ const normalizedData = res.data.map((item) => ({
         userEmail={userEmail}
         userRole={userRole}
       />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-600">
-            <p className="text-xs text-gray-500 uppercase font-bold">
-              Critical
-            </p>
-            <p className="text-2xl font-bold text-red-600">{criticalCases}</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-700">
-            <p className="text-xs text-gray-500 uppercase font-bold">
-              Very High Risk
-            </p>
-            <p className="text-2xl font-bold text-orange-700">
-              {veryHighRiskCases}
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500">
-            <p className="text-xs text-gray-500 uppercase font-bold">
-              High Risk
-            </p>
-            <p className="text-2xl font-bold text-orange-500">
-              {highRiskCases}
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400">
-            <p className="text-xs text-gray-500 uppercase font-bold">
-              Carrier Risk
-            </p>
-            <p className="text-2xl font-bold text-yellow-600">{carrierCases}</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
-            <p className="text-xs text-gray-500 uppercase font-bold">
-              Low Risk
-            </p>
-            <p className="text-2xl font-bold text-green-600">{lowRiskCases}</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
-            <p className="text-xs text-gray-500 uppercase font-bold">
-              Total Cases
-            </p>
-            <p className="text-2xl font-bold text-blue-600">{totalCases}</p>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          {stats.map((s, i) => (
+            <div
+              key={i}
+              className={`bg-white p-4 rounded-xl shadow-sm border-l-4 ${s.color}`}
+            >
+              <p className="text-[10px] text-gray-500 uppercase font-bold">
+                {s.label}
+              </p>
+              <p className={`text-xl font-bold ${s.text}`}>{s.val}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Table */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Couple Email
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    Email
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Risk Level
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    Risk
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
                     Probability
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Recommendation
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">
                     Action
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-10 text-center">
-                      Loading...
+              <tbody className="divide-y divide-gray-200">
+                {data.map((item) => (
+                  <tr key={item.AssessmentID} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      {item.Email}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-2 py-1 rounded-full text-[10px] font-bold ${getRiskColor(item.riskLevel)}`}
+                      >
+                        {item.riskLevel}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm">
+                          {item.percentValue}%
+                        </span>
+                        <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                          <div
+                            className={`h-1.5 rounded-full ${getProgressColor(item.Probability)}`}
+                            style={{ width: `${item.percentValue}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => handleViewReport(item.Email)}
+                        className="text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg text-xs font-medium"
+                      >
+                        View
+                      </button>
                     </td>
                   </tr>
-                ) : data.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-10 text-center">
-                      No assessments found.
-                    </td>
-                  </tr>
-                ) : (
-                  data.map((item) => {
-                    // Read the clean whole number directly from your mapped dataset
-                    const percentValue = item.percentValue;
-                    return (
-                      <tr key={item.AssessmentID} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                          {item.Email}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getRiskColor(item.riskLevel)}`}
-                          >
-                            {item.riskLevel}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-3">
-                            <span className="font-bold w-12">
-                              {percentValue}%
-                            </span>
-                            <div className="w-24 bg-gray-200 rounded-full h-2">
-                              <div
-                                className={`h-2 rounded-full ${getProgressColor(item.Probability)}`}
-                                style={{ width: `${percentValue}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                          {item.Recommendation}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleViewReport(item.Email)}
-                            className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 text-sm font-medium"
-                          >
-                            View Report
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      {/* Modal Popup */}
       {showModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-            onClick={closeModal}
-          ></div>
-
-          {/* Modal Content */}
-          <div className="relative min-h-screen flex items-center justify-center p-4">
-            <div className="relative bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              {/* Modal Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-800">
-                  Couple Genetic Report
-                </h2>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
-                >
-                  &times;
-                </button>
-              </div>
-
-              {/* Modal Body */}
-              <div className="p-6">
-                {modalLoading ? (
-                  <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading couple data...</p>
-                  </div>
-                ) : selectedCouple ? (
+        <div className="fixed inset-0 z-50 overflow-y-auto p-4 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800">
+                Couple Genetic Report
+              </h2>
+              <button onClick={closeModal} className="text-2xl">
+                &times;
+              </button>
+            </div>
+            <div className="p-6">
+              {modalLoading ? (
+                <p>Loading...</p>
+              ) : (
+                selectedCouple && (
                   <>
-                    {/* Couple Information */}
-                    <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                      <h3 className="font-semibold text-gray-700 mb-2">
-                        Couple Information
-                      </h3>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-500">Email:</span>{" "}
-                          {selectedCouple.email}
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Registered:</span>{" "}
-                          {new Date(
-                            selectedCouple.registeredAt,
-                          ).toLocaleDateString()}
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Risk Level:</span>{" "}
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-xs font-bold ${getRiskColor(selectedCouple.riskLevel)}`}
-                          >
-                            {selectedCouple.riskLevel}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Probability:</span>{" "}
-                          {selectedCouple.probability}%
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Husband & Wife Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      {/* Husband Card */}
-                      <div className="border rounded-lg overflow-hidden">
-                        <div className="bg-blue-50 px-4 py-3 border-b">
-                          <h3 className="font-semibold text-blue-800">
-                            {" "}
-                            Husband
-                          </h3>
-                        </div>
-                        <div className="p-4 space-y-2 text-sm">
-                          {selectedCouple.husband ? (
-                            <>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Full Name:
-                                </span>{" "}
-                                <span className="font-medium">
-                                  {selectedCouple.husband.fullName}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Date of Birth:
-                                </span>{" "}
-                                {selectedCouple.husband.dateOfBirth
-                                  ? new Date(
-                                      selectedCouple.husband.dateOfBirth,
-                                    ).toLocaleDateString()
-                                  : "N/A"}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Blood Type:
-                                </span>{" "}
-                                {selectedCouple.husband.bloodType || "N/A"}{" "}
-                                {selectedCouple.husband.rhFactor
-                                  ? `(${selectedCouple.husband.rhFactor})`
-                                  : ""}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Genotype:</span>
-                                <span
-                                  className={`font-bold px-2 py-0.5 rounded-full text-xs ${
-                                    selectedCouple.husband.genotype === "SS"
-                                      ? "bg-red-100 text-red-700"
-                                      : selectedCouple.husband.genotype === "AS"
-                                        ? "bg-yellow-100 text-yellow-700"
-                                        : "bg-green-100 text-green-700"
-                                  }`}
-                                >
-                                  {selectedCouple.husband.genotype || "N/A"}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Region:</span>{" "}
-                                {selectedCouple.husband.region || "N/A"}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Family History:
-                                </span>{" "}
-                                {selectedCouple.husband.familyHistory || "None"}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Affected Child:
-                                </span>{" "}
-                                {selectedCouple.husband.hasAffectedChild
-                                  ? "Yes"
-                                  : "No"}
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-gray-500">No data available</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Wife Card */}
-                      <div className="border rounded-lg overflow-hidden">
-                        <div className="bg-pink-50 px-4 py-3 border-b">
-                          <h3 className="font-semibold text-pink-800"> Wife</h3>
-                        </div>
-                        <div className="p-4 space-y-2 text-sm">
-                          {selectedCouple.wife ? (
-                            <>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Full Name:
-                                </span>{" "}
-                                <span className="font-medium">
-                                  {selectedCouple.wife.fullName}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Date of Birth:
-                                </span>{" "}
-                                {selectedCouple.wife.dateOfBirth
-                                  ? new Date(
-                                      selectedCouple.wife.dateOfBirth,
-                                    ).toLocaleDateString()
-                                  : "N/A"}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Blood Type:
-                                </span>{" "}
-                                {selectedCouple.wife.bloodType || "N/A"}{" "}
-                                {selectedCouple.wife.rhFactor
-                                  ? `(${selectedCouple.wife.rhFactor})`
-                                  : ""}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Genotype:</span>
-                                <span
-                                  className={`font-bold px-2 py-0.5 rounded-full text-xs ${
-                                    selectedCouple.wife.genotype === "SS"
-                                      ? "bg-red-100 text-red-700"
-                                      : selectedCouple.wife.genotype === "AS"
-                                        ? "bg-yellow-100 text-yellow-700"
-                                        : "bg-green-100 text-green-700"
-                                  }`}
-                                >
-                                  {selectedCouple.wife.genotype || "N/A"}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Region:</span>{" "}
-                                {selectedCouple.wife.region || "N/A"}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Family History:
-                                </span>{" "}
-                                {selectedCouple.wife.familyHistory || "None"}
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">
-                                  Affected Child:
-                                </span>{" "}
-                                {selectedCouple.wife.hasAffectedChild
-                                  ? "Yes"
-                                  : "No"}
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-gray-500">No data available</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Assessment Recommendation */}
-                    <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                      <h3 className="font-semibold text-yellow-800 mb-2">
-                        📋 Medical Recommendation
-                      </h3>
-                      <p className="text-gray-700">
-                        {selectedCouple.recommendation ||
-                          "No recommendation available"}
+                    <div className="bg-gray-50 rounded-lg p-4 mb-6 text-sm">
+                      <p>
+                        <strong>Email:</strong> {selectedCouple.email}
                       </p>
-                      <p className="text-xs text-gray-500 mt-2">
-                        Assessment Date:{" "}
-                        {selectedCouple.assessmentDate
-                          ? new Date(
-                              selectedCouple.assessmentDate,
-                            ).toLocaleDateString()
-                          : "N/A"}
+                      <p>
+                        <strong>Risk Level:</strong> {selectedCouple.riskLevel}
                       </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="border rounded-lg p-4">
+                        <h3>Husband</h3>
+                        <p>
+                          Genotype: {selectedCouple.husband?.genotype || "N/A"}
+                        </p>
+                      </div>
+                      <div className="border rounded-lg p-4">
+                        <h3>Wife</h3>
+                        <p>
+                          Genotype: {selectedCouple.wife?.genotype || "N/A"}
+                        </p>
+                      </div>
                     </div>
                   </>
-                ) : null}
-              </div>
-
-              {/* Modal Footer */}
-              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Close
-                </button>
-              </div>
+                )
+              )}
             </div>
           </div>
         </div>
