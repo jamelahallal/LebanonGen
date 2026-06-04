@@ -1,3 +1,5 @@
+import "./i18n/i18n";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -13,8 +15,9 @@ import MedicalConsultant from "./pages/MedicalConsultant";
 import GeneticResearcher from "./pages/GeneticResearcher";
 import SystemAdmin from "./pages/SystemAdmin";
 import ScrollToTop from "./utils/ScrollOnTop";
-import Reset from "./pages/Reset"
+import Reset from "./pages/Reset";
 import "leaflet/dist/leaflet.css";
+
 function App() {
   return (
     <Router>
@@ -32,7 +35,7 @@ function App() {
           <Route path="/chatbot" element={<ChatBot />} />
           <Route path="/reset" element={<Reset />} />
 
-          {/* Role-Based Dashboard Routes */}
+          {/* Role-Based Dashboard Routes — no translation needed */}
           <Route path="/dashboard/consultant" element={<MedicalConsultant />} />
           <Route path="/dashboard/researcher" element={<GeneticResearcher />} />
           <Route path="/dashboard/admin" element={<SystemAdmin />} />

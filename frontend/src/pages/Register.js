@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
+import { useTranslation } from "react-i18next";
 
 const injectStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,700&family=Inter:wght@300;400;500;600&display=swap');
@@ -110,6 +112,8 @@ function getStrength(pw) {
 }
 
 function Register() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -140,6 +144,7 @@ function Register() {
       const data = await response.json();
       if (response.ok) {
         alert("Registration successful! You can now log in.");
+        navigate("/login");
       } else {
         alert(data.message || "Registration failed");
       }
@@ -235,7 +240,7 @@ function Register() {
                 display: "inline-block",
               }}
             />
-            Lebanon Gene
+            {t("login.left.pill")}
           </div>
 
           <h2
@@ -248,10 +253,10 @@ function Register() {
               marginBottom: 16,
             }}
           >
-            Join the
+            {t("login.left.title1")}
             <br />
             <em style={{ fontStyle: "normal", color: "#fecaca" }}>
-              screening platform
+              {t("login.left.title2")}
             </em>
           </h2>
 
@@ -264,8 +269,7 @@ function Register() {
               marginBottom: 40,
             }}
           >
-            Create your account to begin your couple's sickle cell risk
-            assessment — private, secure, and AI-powered.
+            {t("login.left.subtitle")}
           </p>
 
           <div
@@ -277,9 +281,9 @@ function Register() {
             }}
           >
             {[
-              { icon: "📋", label: "Complete your genetic profile" },
-              { icon: "🧬", label: "Receive AI-powered risk prediction" },
-              { icon: "🔒", label: "Your data stays private, always" },
+              { icon: "📋", label: t("form.notice_title") },
+              { icon: "🧬", label: t("form.badge") },
+              { icon: "🔒", label: t("about.values.v3_title") },
             ].map(({ icon, label }) => (
               <div
                 key={label}
@@ -341,7 +345,7 @@ function Register() {
               fontStyle: "italic",
             }}
           >
-            "Prevention begins with knowledge."
+            {t("login.left.quote")}
           </p>
         </div>
       </div>
@@ -388,7 +392,7 @@ function Register() {
                 display: "inline-block",
               }}
             />
-            Lebanon Gene
+            LebanonGen
           </div>
         </div>
 
@@ -404,7 +408,7 @@ function Register() {
                 marginBottom: 8,
               }}
             >
-              Create Account
+              {t("register.title")}
             </h1>
             <p
               style={{
@@ -414,7 +418,7 @@ function Register() {
                 lineHeight: 1.6,
               }}
             >
-              Register to access your genetic screening dashboard.
+              {t("register.subtitle")}
             </p>
           </div>
 
@@ -439,7 +443,7 @@ function Register() {
                 whiteSpace: "nowrap",
               }}
             >
-              New Registration
+              {t("login.form.divider")}
             </span>
             <div className="reg-divider" />
           </div>
@@ -460,14 +464,14 @@ function Register() {
                   marginBottom: 8,
                 }}
               >
-                Email Address
+                {t("register.email_label")}
               </label>
               <div className="reg-input-wrap">
-                <span className="reg-input-icon">✉</span>
+                <span className="rst-input-icon">✉</span>
                 <input
                   type="email"
                   name="email"
-                  placeholder="you@example.com"
+                  placeholder={t("register.email_placeholder")}
                   onChange={handleChange}
                   className="reg-input"
                   required
@@ -487,14 +491,14 @@ function Register() {
                   marginBottom: 8,
                 }}
               >
-                Password
+                {t("register.password_label")}
               </label>
               <div className="reg-input-wrap">
                 <span className="reg-input-icon">🔑</span>
                 <input
                   type="password"
                   name="password"
-                  placeholder="Create a strong password"
+                  placeholder="••••••••"
                   onChange={handleChange}
                   className="reg-input"
                   required
@@ -539,7 +543,7 @@ function Register() {
                   marginBottom: 8,
                 }}
               >
-                Confirm Password
+                {t("register.confirm_label")}
               </label>
               <div className="reg-input-wrap">
                 <span className="reg-input-icon">🔑</span>
@@ -575,8 +579,7 @@ function Register() {
 
             <div className="reg-fu reg-fu-4">
               <button type="submit" className="reg-btn">
-                <span>Create Account</span>
-                <span style={{ fontSize: 16 }}>→</span>
+                <span>{t("register.submit")}</span>
               </button>
             </div>
           </form>
@@ -586,7 +589,7 @@ function Register() {
             style={{ marginTop: 24, textAlign: "center" }}
           >
             <p style={{ fontSize: 14, color: "#9ca3af", fontWeight: 300 }}>
-              Already have an account?{" "}
+              {t("register.have_account")}{" "}
               <a
                 href="/login"
                 style={{
@@ -595,7 +598,7 @@ function Register() {
                   textDecoration: "none",
                 }}
               >
-                Sign In
+                {t("register.login")}
               </a>
             </p>
           </div>
@@ -616,7 +619,7 @@ function Register() {
                 letterSpacing: "0.04em",
               }}
             >
-              This portal is intended for authorized clinical use only.
+              {t("login.form.footer_note")}
             </p>
           </div>
         </div>

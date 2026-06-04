@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { Send, Bot, ShieldAlert, Info, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const injectStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -27,241 +28,242 @@ const injectStyles = `
     0%,100% { opacity:1; transform:scale(1); }
     50%      { opacity:.4; transform:scale(.6); }
   }
-  @keyframes cb-bounce {
-    0%,80%,100% { transform: scaleY(0.4); }
-    40%         { transform: scaleY(1.0); }
-  }
-  @keyframes cb-msgIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
 
-  .cb-pulse   { animation: cb-pulse-dot 2.2s infinite; }
-  .cb-fade-up { animation: cb-fadeUp 0.45s ease both; }
-  .cb-msg-in  { animation: cb-msgIn 0.3s ease both; }
-
-  /* ── Outer shell ── */
-  .cb-shell {
+  .cb-card {
     width: 100%;
-    max-width: 680px;
-    height: 88vh;
-    max-height: 820px;
-    background: #fff;
-    border-radius: 24px;
-    border: 1px solid #f0e8e8;
-    box-shadow: 0 16px 64px rgba(127,29,29,0.12);
+    max-width: 840px;
+    height: 82vh;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(127,29,29,0.03);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: cb-fadeUp 0.5s ease both;
+    animation: cb-fadeUp 0.5s ease out;
   }
 
-  /* ── Header ── */
   .cb-header {
-    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
-    padding: 20px 24px;
+    padding: 20px 28px;
+    background: #ffffff;
+    border-bottom: 1px solid #f3f4f6;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-shrink: 0;
   }
-  .cb-avatar {
-    width: 46px; height: 46px; border-radius: 13px;
-    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; position: relative;
-  }
-  .cb-online-dot {
-    position: absolute; bottom: -2px; right: -2px;
-    width: 12px; height: 12px; border-radius: 50%;
-    background: #4ade80; border: 2px solid #991b1b;
-  }
-
-  /* ── Suggested prompts ── */
-  .cb-suggestions {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    padding: 14px 20px 4px;
-    flex-shrink: 0;
-  }
-  .cb-chip {
-    background: #fdf5f5; border: 1px solid #fca5a5;
-    color: #7f1d1d; font-size: 12px; font-weight: 500;
-    padding: 6px 12px; border-radius: 999px; cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    font-family: 'Inter', sans-serif;
-  }
-  .cb-chip:hover { background: #fee2e2; border-color: #f87171; }
-
-  /* ── Messages area ── */
-  .cb-messages {
-    flex: 1; overflow-y: auto;
-    padding: 20px;
-    display: flex; flex-direction: column; gap: 16px;
-    scroll-behavior: smooth;
-  }
-  .cb-messages::-webkit-scrollbar { width: 4px; }
-  .cb-messages::-webkit-scrollbar-track { background: transparent; }
-  .cb-messages::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 99px; }
-
-  /* ── Message bubbles ── */
-  .cb-bubble-bot {
-    max-width: 82%;
-    background: #fafaf9;
-    border: 1px solid #f0e8e8;
-    border-radius: 18px 18px 18px 4px;
-    padding: 14px 16px;
-    color: #1f2937;
-  }
-  .cb-bubble-user {
-    max-width: 82%;
+  .cb-header-left { display: flex; align-items: center; gap: 14px; }
+  .cb-icon-frame {
+    width: 42px;
+    height: 42px;
     background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
-    border-radius: 18px 18px 4px 18px;
-    padding: 14px 16px;
-    color: #fff;
-    margin-left: auto;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(127,29,29,0.2);
   }
-  .cb-bubble-bot .prose { font-size: 14px; line-height: 1.65; }
-  .cb-bubble-user .prose { font-size: 14px; line-height: 1.65; }
+  .cb-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #7f1d1d;
+    margin: 0;
+  }
+  .cb-subtitle {
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 2px 0 0 0;
+    font-weight: 300;
+  }
 
-  /* Typing indicator */
-  .cb-typing {
-    display: flex; align-items: center; gap: 4px;
-    padding: 14px 16px;
-    background: #fafaf9; border: 1px solid #f0e8e8;
-    border-radius: 18px 18px 18px 4px;
-    width: fit-content;
+  .cb-close-btn {
+    background: #f9fafb;
+    border: 1px solid #f3f4f6;
+    color: #9ca3af;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
+  .cb-close-btn:hover { background: #f3f4f6; color: #111827; }
+
+  .cb-chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+    background: #fffdfd;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .cb-msg-row { display: flex; width: 100%; gap: 12px; }
+  .cb-msg-row.user { justify-content: flex-end; }
+  .cb-msg-row.bot { justify-content: flex-start; }
+
+  .cb-bubble {
+    max-width: 75%;
+    padding: 14px 18px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .cb-msg-row.user .cb-bubble {
+    background: #7f1d1d;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(127,29,29,0.12);
+  }
+  .cb-msg-row.bot .cb-bubble {
+    background: #f9fafb;
+    color: #1f2937;
+    border-top-left-radius: 4px;
+    border: 1px solid #f3f4f6;
+  }
+
+  .cb-bubble p { margin: 0 0 10px 0; }
+  .cb-bubble p:last-child { margin-bottom: 0; }
+  .cb-bubble ul, .cb-bubble ol { margin: 8px 0; padding-left: 20px; }
+
+  .cb-avatar-bot {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #fef2f2; border: 1px solid #fee2e2;
+    display: flex; align-items: center; justify-content: center;
+    color: #b91c1c; flex-shrink: 0;
+  }
+
+  .cb-typing { display: flex; align-items: center; gap: 4px; padding: 6px 4px; }
   .cb-dot {
-    width: 7px; height: 7px; border-radius: 50%; background: #b91c1c;
-    animation: cb-bounce 1.4s ease infinite;
+    width: 6px; height: 6px; background: #b91c1c; border-radius: 50%;
+    animation: cb-pulse-dot 1.4s infinite ease-in-out both;
   }
-  .cb-dot:nth-child(2) { animation-delay: 0.16s; }
-  .cb-dot:nth-child(3) { animation-delay: 0.32s; }
+  .cb-dot:nth-child(1) { animation-delay: -0.32s; }
+  .cb-dot:nth-child(2) { animation-delay: -0.16s; }
 
-  /* ── Footer ── */
   .cb-footer {
-    padding: 14px 20px 18px;
-    background: #fafaf9;
-    border-top: 1px solid #f0e8e8;
-    flex-shrink: 0;
+    padding: 20px 28px;
+    background: #ffffff;
+    border-top: 1px solid #f3f4f6;
   }
   .cb-disclaimer {
-    display: flex; align-items: center; gap: 6px;
-    margin-bottom: 12px; padding: 0 2px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px; background: #fff5f5;
+    padding: 10px 14px; border-radius: 10px;
+    border: 1px solid #ffe3e3;
   }
-  .cb-input-row {
-    display: flex; gap: 10px; align-items: center;
-  }
+  .cb-input-row { display: flex; gap: 12px; }
   .cb-input {
-    flex: 1; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 12px; padding: 12px 16px;
-    font-size: 14px; font-family: 'Inter', sans-serif; color: #111827;
-    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    flex: 1;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: #111827;
+    outline: none;
+    transition: all 0.2s ease;
   }
-  .cb-input::placeholder { color: #9ca3af; }
   .cb-input:focus {
-    border-color: #b91c1c;
-    box-shadow: 0 0 0 3px rgba(185,28,28,0.08);
+    background: #ffffff;
+    border-color: #991b1b;
+    box-shadow: 0 0 0 3px rgba(153,27,27,0.06);
   }
   .cb-send {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg, #7f1d1d, #991b1b);
-    border: none; cursor: pointer; color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 12px rgba(127,29,29,0.3);
-    transition: opacity 0.2s, transform 0.15s;
-    flex-shrink: 0;
+    background: #7f1d1d;
+    color: #ffffff;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
   }
-  .cb-send:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-  .cb-send:active { transform: scale(0.95); }
-  .cb-send:disabled { background: #d1d5db; box-shadow: none; cursor: not-allowed; }
+  .cb-send:hover:not(:disabled) { background: #991b1b; }
+  .cb-send:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
 
-  /* ── Info tooltip overlay ── */
-  .cb-info-overlay {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(127,29,29,0.97);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 40px 32px; text-align: center; z-index: 10;
-    border-radius: 24px;
-  }
-
-  @media (max-width: 480px) {
-    .cb-shell { height: 100vh; max-height: 100vh; border-radius: 0; }
-    .cb-body { padding: 0; align-items: stretch; }
+  .cb-info-box {
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 12px; padding: 14px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+    margin-bottom: 8px; animation: cb-fadeUp 0.4s ease;
   }
 `;
 
-const SUGGESTIONS = [
-  "What does AA genotype mean?",
-  "Is AS carrier dangerous?",
-  "What are sickle cell symptoms?",
-  "How accurate is this assessment?",
-];
-
 function ChatBot() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
   const navigate = useNavigate();
-  const [showInfo, setShowInfo] = useState(false);
-
-  useEffect(() => {
-    if (localStorage.getItem("isLoggedIn") !== "true") navigate("/login");
-  }, [navigate]);
-
-  const [messages, setMessages] = useState([
-    {
-      sender: "bot",
-      text: "Hello! I am your **LebanonGen Assistant**. I've reviewed your genetic profiles. How can I help clarify your results today?",
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [contextData, setContextData] = useState(null);
   const chatEndRef = useRef(null);
-  const coupleId = localStorage.getItem("coupleID");
+
+  useEffect(() => {
+    const savedAssessment = localStorage.getItem("latestAssessmentData");
+    if (savedAssessment) {
+      try {
+        const parsed = JSON.parse(savedAssessment);
+        setContextData(parsed);
+        setMessages([
+          {
+            sender: "bot",
+            text: `Hello! I have loaded your diagnostic information into my context workspace. I can see your estimated result was **${parsed.riskLevel || "Analyzed"}**. How can I assist you with your report or family compatibility planning questions today?`,
+          },
+        ]);
+      } catch (e) {
+        console.error("Context mapping crash", e);
+      }
+    } else {
+      setMessages([
+        {
+          sender: "bot",
+          text: "Hello! I am your AI Genetic Assistant. Feel free to ask me anything about blood markers, inheritance configurations, or global metrics concerning Sickle Cell Disease.",
+        },
+      ]);
+    }
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const sendMessage = async (text) => {
-    if (!text.trim() || isTyping) return;
-    const userMsg = {
-      sender: "user",
-      text,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-    setMessages((prev) => [...prev, userMsg]);
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!input.trim() || isTyping) return;
+
+    const userMessage = input.trim();
     setInput("");
+    setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setIsTyping(true);
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/ai/chat`,
-        { coupleId, message: text },
-      );
-      setMessages((prev) => [
-        ...prev,
         {
-          sender: "bot",
-          text: response.data.reply,
-          time: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+          prompt: userMessage,
+          context: contextData,
         },
+      );
+
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: response.data.reply },
       ]);
-    } catch {
+    } catch (err) {
       setMessages((prev) => [
         ...prev,
         {
           sender: "bot",
-          text: "⚠️ Service temporarily unavailable. Please try again.",
-          time: "Error",
+          text: "I experienced a system processing timeout. Please submit your prompt again.",
         },
       ]);
     } finally {
@@ -269,264 +271,89 @@ function ChatBot() {
     }
   };
 
-  const handleSend = (e) => {
-    e.preventDefault();
-    sendMessage(input);
-  };
-
   return (
     <>
       <style>{injectStyles}</style>
       <div className="cb-body">
-        <div className="cb-shell" style={{ position: "relative" }}>
-          {/* Info overlay */}
-          {showInfo && (
-            <div className="cb-info-overlay">
-              <button
-                onClick={() => setShowInfo(false)}
-                style={{
-                  position: "absolute",
-                  top: 20,
-                  right: 20,
-                  background: "rgba(255,255,255,0.1)",
-                  border: "none",
-                  color: "#fff",
-                  width: 34,
-                  height: 34,
-                  borderRadius: "50%",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <X size={16} />
-              </button>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>🧬</div>
-              <h3
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: "#fff",
-                  margin: "0 0 12px",
-                }}
-              >
-                About this Counselor
-              </h3>
-              <p
-                style={{
-                  color: "rgba(255,255,255,0.65)",
-                  fontSize: 14,
-                  lineHeight: 1.7,
-                  maxWidth: 360,
-                }}
-              >
-                This AI assistant is trained on sickle cell disease genetics and
-                is aware of your submitted couple profile. It provides
-                educational guidance only. Always consult a licensed genetic
-                counselor or physician for clinical decisions.
-              </p>
-            </div>
-          )}
-
+        <div className="cb-card">
           {/* ── Header ── */}
           <div className="cb-header">
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div className="cb-avatar">
-                <Bot size={22} color="#fff" />
-                <div className="cb-online-dot" />
+            <div className="cb-header-left">
+              <div className="cb-icon-frame">
+                <Bot size={22} />
               </div>
               <div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: 2,
-                  }}
-                >
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: "#fff",
-                      fontFamily: "'Inter', sans-serif",
-                    }}
-                  >
-                    Genetic Counselor
-                  </h2>
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 5,
-                      background: "rgba(255,255,255,0.12)",
-                      border: "1px solid rgba(255,255,255,0.2)",
-                      borderRadius: 999,
-                      padding: "2px 8px",
-                    }}
-                  >
-                    <span
-                      className="cb-pulse"
-                      style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: "50%",
-                        background: "#4ade80",
-                        display: "inline-block",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: 9,
-                        color: "rgba(255,255,255,0.8)",
-                        fontWeight: 600,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Online
-                    </span>
-                  </div>
-                </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 11,
-                    color: "rgba(255,255,255,0.55)",
-                    fontWeight: 300,
-                  }}
-                >
-                  Lebanon Gene · AI System
-                </p>
+                <h1 className="cb-title">{t("chatbot.title")}</h1>
+                <p className="cb-subtitle">{t("chatbot.subtitle")}</p>
               </div>
             </div>
-            <button
-              onClick={() => setShowInfo(true)}
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "background 0.15s",
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.background = "rgba(255,255,255,0.18)")
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
-              }
-            >
-              <Info size={16} />
+            <button className="cb-close-btn" onClick={() => navigate(-1)}>
+              <X size={18} />
             </button>
           </div>
 
-          {/* ── Suggested prompts ── */}
-          {messages.length <= 1 && (
-            <div className="cb-suggestions">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  className="cb-chip"
-                  onClick={() => sendMessage(s)}
+          {/* ── Chat Messages Display viewport ── */}
+          <div className="cb-chat-area">
+            {contextData && (
+              <div className="cb-info-box">
+                <Info
+                  size={18}
+                  color="#15803d"
+                  style={{ flexShrink: 0, marginTop: "2px" }}
+                />
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "#166534",
+                    lineHeight: "1.5",
+                  }}
                 >
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
+                  <strong>
+                    {t("form.badge") || "Genetic Risk Assessment"}:
+                  </strong>{" "}
+                  Ready. Your calculated profile parameters have been structured
+                  securely inside this chat interface.
+                </span>
+              </div>
+            )}
 
-          {/* ── Messages ── */}
-          <div className="cb-messages">
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`cb-msg-in`}
-                style={{
-                  display: "flex",
-                  justifyContent:
-                    msg.sender === "user" ? "flex-end" : "flex-start",
-                }}
-              >
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`cb-msg-row ${msg.sender}`}>
                 {msg.sender === "bot" && (
-                  <div
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 8,
-                      background: "#fdf5f5",
-                      border: "1px solid #fca5a5",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginRight: 8,
-                      flexShrink: 0,
-                      alignSelf: "flex-end",
-                    }}
-                  >
-                    <Bot size={14} color="#7f1d1d" />
+                  <div className="cb-avatar-bot">
+                    <Bot size={16} />
                   </div>
                 )}
                 <div
-                  className={
-                    msg.sender === "user" ? "cb-bubble-user" : "cb-bubble-bot"
-                  }
+                  className="cb-bubble"
+                  style={{
+                    textAlign: isRtl ? "right" : "left",
+                    direction: isRtl ? "rtl" : "ltr",
+                  }}
                 >
-                  <div className="prose">
-                    <ReactMarkdown>{msg.text}</ReactMarkdown>
-                  </div>
-                  <span
-                    style={{
-                      display: "block",
-                      fontSize: 10,
-                      marginTop: 6,
-                      opacity: 0.45,
-                      textAlign: msg.sender === "user" ? "right" : "left",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {msg.time}
-                  </span>
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
               </div>
             ))}
 
-            {/* Typing indicator */}
             {isTyping && (
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
-                <div
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 8,
-                    background: "#fdf5f5",
-                    border: "1px solid #fca5a5",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Bot size={14} color="#7f1d1d" />
+              <div className="cb-msg-row bot">
+                <div className="cb-avatar-bot">
+                  <Bot size={16} />
                 </div>
-                <div className="cb-typing">
-                  <div className="cb-dot" />
-                  <div className="cb-dot" />
-                  <div className="cb-dot" />
+                <div className="cb-bubble" style={{ minWidth: "60px" }}>
+                  <div className="cb-typing">
+                    <div className="cb-dot" />
+                    <div className="cb-dot" />
+                    <div className="cb-dot" />
+                  </div>
                 </div>
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
-          {/* ── Footer ── */}
+          {/* ── Footer Input Block ── */}
           <div className="cb-footer">
             <div className="cb-disclaimer">
               <ShieldAlert size={13} color="#b91c1c" />
@@ -538,7 +365,8 @@ function ChatBot() {
                   fontStyle: "italic",
                 }}
               >
-                Educational guidance only · Not a substitute for medical advice
+                {t("form.disclaimer") ||
+                  "Educational guidance only · Not a substitute for medical advice"}
               </p>
             </div>
             <form onSubmit={handleSend} className="cb-input-row">
@@ -546,8 +374,12 @@ function ChatBot() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about genotypes, risk levels, sickle cell…"
+                placeholder={t("chatbot.placeholder")}
                 className="cb-input"
+                style={{
+                  textAlign: isRtl ? "right" : "left",
+                  direction: isRtl ? "rtl" : "ltr",
+                }}
               />
               <button
                 type="submit"

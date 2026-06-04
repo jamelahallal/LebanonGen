@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
+import { useTranslation } from "react-i18next";
 
 const injectStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,700&family=Inter:wght@300;400;500;600&display=swap');
@@ -125,6 +126,7 @@ function getStrength(pw) {
 
 function Reset() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: "",
     oldPassword: "",
@@ -253,7 +255,7 @@ function Reset() {
                 display: "inline-block",
               }}
             />
-            Lebanon Gene
+            {t("login.left.pill")}
           </div>
 
           <h2
@@ -266,9 +268,11 @@ function Reset() {
               marginBottom: 16,
             }}
           >
-            Secure your
+            {t("login.left.title1")}
             <br />
-            <em style={{ fontStyle: "normal", color: "#fecaca" }}>account</em>
+            <em style={{ fontStyle: "normal", color: "#fecaca" }}>
+              {t("login.left.title2")}
+            </em>
           </h2>
 
           <p
@@ -280,8 +284,7 @@ function Reset() {
               marginBottom: 40,
             }}
           >
-            Follow the steps below to update your credentials and keep your
-            genetic data protected.
+            {t("login.left.subtitle")}
           </p>
 
           {/* Steps */}
@@ -334,7 +337,7 @@ function Reset() {
               fontStyle: "italic",
             }}
           >
-            "Your privacy is our priority."
+            {t("login.left.quote")}
           </p>
         </div>
       </div>
@@ -381,7 +384,7 @@ function Reset() {
                 display: "inline-block",
               }}
             />
-            Lebanon Gene
+            LebanonGen
           </div>
         </div>
 
@@ -397,7 +400,7 @@ function Reset() {
                 marginBottom: 8,
               }}
             >
-              Reset Password
+              {t("reset.title")}
             </h1>
             <p
               style={{
@@ -407,7 +410,7 @@ function Reset() {
                 lineHeight: 1.6,
               }}
             >
-              Enter your current password and choose a new one.
+              {t("reset.subtitle")}
             </p>
           </div>
 
@@ -432,7 +435,7 @@ function Reset() {
                 whiteSpace: "nowrap",
               }}
             >
-              Credential Update
+              {t("login.form.divider")}
             </span>
             <div className="rst-divider" />
           </div>
@@ -453,14 +456,14 @@ function Reset() {
                   marginBottom: 8,
                 }}
               >
-                Email Address
+                {t("reset.email_label")}
               </label>
               <div className="rst-input-wrap">
                 <span className="rst-input-icon">✉</span>
                 <input
                   type="email"
                   name="email"
-                  placeholder="you@example.com"
+                  placeholder={t("reset.email_placeholder")}
                   onChange={handleChange}
                   className="rst-input"
                   required
@@ -480,7 +483,7 @@ function Reset() {
                   marginBottom: 8,
                 }}
               >
-                Current Password
+                {t("login.form.password_label")}
               </label>
               <div className="rst-input-wrap">
                 <span className="rst-input-icon">🔓</span>
@@ -507,14 +510,14 @@ function Reset() {
                   marginBottom: 8,
                 }}
               >
-                New Password
+                {t("register.password_label")}
               </label>
               <div className="rst-input-wrap">
                 <span className="rst-input-icon">🔑</span>
                 <input
                   type="password"
                   name="newPassword"
-                  placeholder="Choose a strong password"
+                  placeholder="••••••••"
                   onChange={handleChange}
                   className="rst-input"
                   required
@@ -558,7 +561,7 @@ function Reset() {
                   marginBottom: 8,
                 }}
               >
-                Confirm New Password
+                {t("register.confirm_label")}
               </label>
               <div className="rst-input-wrap">
                 <span className="rst-input-icon">🔑</span>
@@ -593,8 +596,7 @@ function Reset() {
 
             <div className="rst-fu rst-fu-5">
               <button type="submit" className="rst-btn">
-                <span>Update Password</span>
-                <span style={{ fontSize: 16 }}>→</span>
+                <span>{t("reset.submit")}</span>
               </button>
             </div>
           </form>
@@ -604,7 +606,7 @@ function Reset() {
             style={{ marginTop: 24, textAlign: "center" }}
           >
             <p style={{ fontSize: 14, color: "#9ca3af", fontWeight: 300 }}>
-              Back to{" "}
+              {t("register.have_account")}{" "}
               <a
                 href="/login"
                 style={{
@@ -613,7 +615,7 @@ function Reset() {
                   textDecoration: "none",
                 }}
               >
-                Sign In
+                {t("reset.back_to_login")}
               </a>
             </p>
           </div>
@@ -634,7 +636,7 @@ function Reset() {
                 letterSpacing: "0.04em",
               }}
             >
-              This portal is intended for authorized clinical use only.
+              {t("login.form.footer_note")}
             </p>
           </div>
         </div>

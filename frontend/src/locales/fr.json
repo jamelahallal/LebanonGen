@@ -1,0 +1,274 @@
+{
+  "navbar": {
+    "home": "Accueil",
+    "about": "À propos",
+    "dashboard": "Tableau de bord",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "tagline": "Sensibilisation aux maladies génétiques"
+  },
+  "home": {
+    "hero": {
+      "pill": "Intelligence génétique des risques",
+      "title1": "Accompagner les familles",
+      "title2": "grâce à la",
+      "title2_accent": "Génétique",
+      "subtitle": "Prédiction de la drépanocytose par intelligence artificielle pour aider les familles à prendre des décisions éclairées — un profil génétique à la fois.",
+      "cta_start": "Commencer",
+      "cta_learn": "En savoir plus sur la DRÉ",
+      "scroll": "défiler"
+    },
+    "trust": {
+      "item1": "Prédiction par IA",
+      "item2": "Conçu pour usage clinique",
+      "item3": "Dépistage fondé sur des preuves",
+      "item4": "Soins centrés sur la famille"
+    },
+    "about_scd": {
+      "label": "À propos de la maladie",
+      "badge_title": "Microscopie",
+      "badge_sub": "Drépanocytes vs globules rouges normaux",
+      "title1": "Comprendre",
+      "title2": "la drépanocytose",
+      "body1_start": "La drépanocytose (SCD) est une maladie génétique affectant les globules rouges.",
+      "body1_bold1": "Les cellules normales ont une forme de disque",
+      "body1_mid": "et circulent librement dans les vaisseaux ;",
+      "body1_bold2": "les drépanocytes sont rigides et en forme de faucille",
+      "body1_end": ", provoquant des blocages douloureux et des lésions organiques.",
+      "learn_more": "En savoir plus sur la drépanocytose"
+    },
+    "stats": {
+      "s1_num": "300M",
+      "s1_accent": "+",
+      "s1_desc": "Personnes porteuses du gène drépanocytaire dans le monde",
+      "s2_num": "1 sur 4",
+      "s2_accent": "",
+      "s2_desc": "Probabilité de maladie si les deux parents sont porteurs",
+      "s3_num": "100",
+      "s3_accent": "%",
+      "s3_desc": "Évitable grâce à un dépistage génétique approprié"
+    },
+    "features": {
+      "label": "Ce que nous offrons",
+      "title": "Nos services",
+      "subtitle": "Aider les familles à comprendre et prévenir la drépanocytose avec des outils modernes et intelligents.",
+      "f1_title": "Dépistage génétique",
+      "f1_desc": "Identifiez si vous êtes porteur du trait drépanocytaire. Un test simple et précis est la première étape vers une planification familiale éclairée.",
+      "f2_title": "Évaluation des risques",
+      "f2_desc": "Utilisez notre tableau de bord IA pour évaluer la probabilité d'héritage selon le profil génétique unique de chaque parent.",
+      "f3_title": "Prévention et soins",
+      "f3_desc": "Accédez à des ressources éducatives fondées sur des preuves, conçues pour soutenir les patients, les familles et les professionnels de santé."
+    }
+  },
+  "about": {
+    "hero": {
+      "pill": "Notre mission",
+      "title1": "Accompagner les familles",
+      "title2": "grâce à la",
+      "title2_accent": "clarté génétique",
+      "subtitle": "LebanonGen s'engage à réduire l'impact de la drépanocytose grâce à des outils de dépistage innovants et une éducation communautaire."
+    },
+    "breadcrumb": {
+      "home": "Accueil",
+      "current": "À propos de nous"
+    },
+    "purpose": {
+      "badge_title": "LebanonGen",
+      "badge_sub": "Soins centrés sur la famille",
+      "label": "Notre objectif",
+      "title1": "Une vision pour un",
+      "title2": "Liban en meilleure santé",
+      "body1": "La drépanocytose touche des milliers de familles au Liban. Notre plateforme comble le fossé entre les données génétiques complexes et la planification familiale.",
+      "body2": "En fournissant une cartographie probabiliste accessible et basée sur les données, nous permettons aux parents de prendre les décisions les plus éclairées pour leurs futurs enfants."
+    },
+    "values": {
+      "v1_title": "La science avant tout",
+      "v1_desc": "Chaque prédiction est fondée sur des recherches génétiques évaluées par les pairs et des données cliniques.",
+      "v2_title": "Engagement communautaire",
+      "v2_desc": "Des outils façonnés par les familles et communautés les plus touchées par la drépanocytose au Liban.",
+      "v3_title": "Confidentialité garantie",
+      "v3_desc": "Vos données génétiques restent les vôtres. Nous ne partageons ni ne vendons aucune information personnelle."
+    },
+    "team": {
+      "label": "Les personnes derrière le projet",
+      "title": "Notre équipe",
+      "subtitle": "Des chercheurs, cliniciens et administrateurs dévoués qui œuvrent à rendre le dépistage génétique accessible.",
+      "m1_name": "Dr. Ali Nader",
+      "m1_role": "Chercheur en génétique",
+      "m2_name": "Dr. Leila Saab",
+      "m2_role": "Consultante médicale",
+      "m3_name": "Samir Fares",
+      "m3_role": "Administrateur système"
+    }
+  },
+  "login": {
+    "left": {
+      "pill": "LebanonGen",
+      "title1": "Clarté génétique",
+      "title2": "pour chaque famille",
+      "subtitle": "Prédiction du risque de drépanocytose par IA. Conçu pour les cliniciens, pensé pour les familles libanaises.",
+      "trust1": "Prédictions fondées sur des preuves",
+      "trust2": "Vos données restent privées",
+      "trust3": "Conçu pour les communautés libanaises",
+      "quote": "\"La connaissance est la première étape vers la prévention.\""
+    },
+    "form": {
+      "title": "Portail patient",
+      "subtitle": "Connectez-vous pour accéder à votre tableau de bord de dépistage génétique.",
+      "divider": "Connexion sécurisée",
+      "email_label": "Adresse e-mail",
+      "email_placeholder": "vous@exemple.com",
+      "password_label": "Mot de passe",
+      "forgot": "Identifiants oubliés ? Contacter l'administrateur",
+      "submit": "Se connecter →",
+      "no_account": "Pas encore de compte ?",
+      "register": "S'inscrire ici",
+      "reset": "Réinitialiser le mot de passe",
+      "footer_note": "Ce portail est réservé à un usage clinique autorisé."
+    }
+  },
+  "register": {
+    "title": "Créer un compte",
+    "subtitle": "Inscrivez-vous pour accéder à la plateforme de dépistage génétique.",
+    "email_label": "Adresse e-mail",
+    "email_placeholder": "vous@exemple.com",
+    "password_label": "Mot de passe",
+    "confirm_label": "Confirmer le mot de passe",
+    "submit": "S'inscrire →",
+    "have_account": "Vous avez déjà un compte ?",
+    "login": "Se connecter"
+  },
+  "reset": {
+    "title": "Réinitialiser le mot de passe",
+    "subtitle": "Entrez votre e-mail pour recevoir les instructions de réinitialisation.",
+    "email_label": "Adresse e-mail",
+    "email_placeholder": "vous@exemple.com",
+    "submit": "Envoyer le lien de réinitialisation →",
+    "back_to_login": "Retour à la connexion"
+  },
+  "footer": {
+    "tagline": "LebanonGen se consacre à la sensibilisation à la drépanocytose et fournit des outils alimentés par l'IA pour aider les couples au Liban à comprendre leur compatibilité génétique.",
+    "nav_title": "Navigation",
+    "nav_home": "Accueil",
+    "nav_about": "À propos de nous",
+    "nav_dashboard": "Tableau de santé",
+    "nav_login": "Connexion patient",
+    "contact_title": "Contactez-nous",
+    "contact_location": "Beyrouth, Liban",
+    "copyright": "LebanonGen — Sensibilisation et prévention de la drépanocytose",
+    "badge": "Plateforme alimentée par l'IA"
+  },
+  "dashboard": {
+    "title": "Diagnostics du site web",
+    "description": "Ce tableau de bord cartographique interactif affiche des distributions statistiques en temps réel basées strictement sur les tests de dépistage génétique effectués directement sur ce site.",
+    "server": "Lien serveur : Connecté",
+    "live": "Flux en direct",
+    "loading": "Synchronisation des modules GIS en cours...",
+    "error_title": "Interface cartographique hors ligne",
+    "error_details": "Détails :",
+    "error_note": "Veuillez confirmer que votre serveur Express fonctionne normalement."
+  },
+  "map": {
+    "toggle_label": "Changer la vue de la carte",
+    "combined": "Total combiné",
+    "carriers": "Porteurs (AS)",
+    "affected": "Atteints (SS)",
+    "carriers_label": "Porteurs (AS) :",
+    "affected_label": "Atteints (SS) :",
+    "total_label": "Total des cas :",
+    "governate": "Gouvernorat"
+  },
+  "form": {
+    "loading": "Chargement de vos données…",
+    "badge": "Évaluation du risque génétique",
+    "title": "Formulaire d'évaluation du couple",
+    "subtitle": "Remplissez les deux profils pour recevoir votre analyse de risque génétique par IA.",
+    "locked_title": "Évaluation déjà soumise",
+    "locked_body": "Votre évaluation génétique est terminée. Vous pouvez consulter vos résultats ci-dessous.",
+    "notice_title": "Avis important",
+    "notice_body": "Veuillez remplir tous les champs avec précision. Ces informations serviront à générer votre évaluation de risque génétique.",
+    "section_personal": "Informations personnelles",
+    "section_personal_sub": "Données démographiques et d'identification de base",
+    "section_blood": "Groupe sanguin et facteur Rh",
+    "section_blood_sub": "Groupe ABO et facteur Rhésus",
+    "section_genetic": "Génotype et antécédents familiaux",
+    "section_genetic_sub": "Génotype de la drépanocytose et antécédents héréditaires",
+    "husband": "Mari",
+    "wife": "Femme",
+    "full_name": "Nom complet",
+    "dob": "Date de naissance",
+    "region": "Région",
+    "blood_type": "Groupe sanguin",
+    "rh_factor": "Facteur Rh",
+    "genotype": "Génotype",
+    "family_history": "Antécédents familiaux",
+    "family_history_q_husband": "La famille du mari est-elle concernée ?",
+    "family_history_q_wife": "La famille de la femme est-elle concernée ?",
+    "affected_child": "Avez-vous un enfant atteint ensemble ?",
+    "select": "Sélectionner…",
+    "yes": "Oui",
+    "no": "Non",
+    "positive": "Positif (+)",
+    "negative": "Négatif (−)",
+    "aa_normal": "AA — Normal",
+    "as_carrier": "AS — Porteur",
+    "ss_affected": "SS — Atteint",
+    "submit": "Lancer l'évaluation génétique",
+    "analyzing": "Analyse en cours…",
+    "result_label": "Résultat de l'évaluation",
+    "risk_probability": "Probabilité de risque",
+    "recommendation_label": "Recommandation",
+    "submitted_on": "Soumis le",
+    "disclaimer": "⚕️ Ce résultat est à titre informatif uniquement. Veuillez consulter un conseiller génétique agréé.",
+    "chat_link": "Discuter avec le conseiller IA",
+    "fill_all": "Veuillez remplir tous les champs avant de soumettre.",
+    "session_expired": "Session expirée. Veuillez vous reconnecter.",
+    "save_error": "Échec de l'enregistrement des données. Veuillez vérifier votre connexion.",
+    "regions": {
+      "beirut": "Beyrouth",
+      "mount_lebanon": "Mont-Liban",
+      "north": "Nord",
+      "south": "Sud",
+      "bekaa": "Békaa",
+      "nabatieh": "Nabatiyeh",
+      "akkar": "Akkar",
+      "baalbek": "Baalbek-Hermel",
+      "keserwan": "Kesrouan-Jbeil"
+    }
+  },
+  "chatbot": {
+    "title": "Conseiller génétique IA",
+    "subtitle": "Posez toute question sur vos résultats ou la drépanocytose.",
+    "placeholder": "Tapez votre question ici…",
+    "send": "Envoyer",
+    "thinking": "Réflexion en cours…"
+  },
+  "drlog": {
+    "title": "Portail du personnel",
+    "subtitle": "Connectez-vous avec vos identifiants cliniques.",
+    "email_label": "E-mail",
+    "password_label": "Mot de passe",
+    "submit": "Se connecter →",
+    "error_invalid": "Identifiants invalides. Veuillez réessayer."
+  },
+  "ml_results": {
+    "risk_levels": {
+      "Critical Risk": "Risque critique",
+      "Very High Risk": "Risque très élevé",
+      "High Risk": "Risque élevé",
+      "Moderate Risk": "Risque modéré",
+      "Carrier Risk": "Risque porteur",
+      "Low Risk": "Risque faible",
+      "Minimal Risk": "Risque minimal"
+    },
+    "recommendations": {
+      "Immediate genetic counseling is strongly advised. Both partners carry high-risk genotypes. Consider advanced reproductive options such as IVF with preimplantation genetic diagnosis.": "Un conseil génétique immédiat est fortement conseillé. Les deux partenaires portent des génotypes à haut risque. Envisagez des options de reproduction avancées telles que la FIV avec diagnostic génétique préimplantatoire.",
+      "Genetic counseling is highly recommended. There is a significant risk of having an affected child. Discuss family planning options with a specialist.": "Un conseil génétique est vivement recommandé. Il existe un risque significatif d'avoir un enfant atteint. Discutez des options de planification familiale avec un spécialiste.",
+      "Consult a genetic counselor. There is a notable risk of passing the sickle cell trait or disease to your children.": "Consultez un conseiller génétique. Il existe un risque notable de transmettre le trait ou la maladie drépanocytaire à vos enfants.",
+      "Moderate risk detected. Genetic counseling is recommended to understand your options and plan accordingly.": "Risque modéré détecté. Un conseil génétique est recommandé pour comprendre vos options et planifier en conséquence.",
+      "One or both partners are carriers. Children may inherit the carrier trait. Counseling is advised.": "L'un ou les deux partenaires sont porteurs. Les enfants peuvent hériter du trait porteur. Un conseil est recommandé.",
+      "Low risk of having a child with sickle cell disease, but regular monitoring is still recommended.": "Faible risque d'avoir un enfant atteint de drépanocytose, mais un suivi régulier reste recommandé.",
+      "Minimal genetic risk detected. Continue regular health check-ups and consult your doctor if you have concerns.": "Risque génétique minimal détecté. Continuez les bilans de santé réguliers et consultez votre médecin en cas d'inquiétude."
+    }
+  }
+}

@@ -1,0 +1,274 @@
+{
+  "navbar": {
+    "home": "Home",
+    "about": "About",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "logout": "Logout",
+    "tagline": "Genetic Disease Awareness"
+  },
+  "home": {
+    "hero": {
+      "pill": "Genetic Risk Intelligence",
+      "title1": "Empowering Families",
+      "title2": "Through",
+      "title2_accent": "Genetics",
+      "subtitle": "AI-powered sickle cell disease prediction to help families make informed decisions — one genetic profile at a time.",
+      "cta_start": "Get Started",
+      "cta_learn": "Learn About SCD",
+      "scroll": "scroll"
+    },
+    "trust": {
+      "item1": "ML-powered prediction",
+      "item2": "Built for clinical use",
+      "item3": "Evidence-based screening",
+      "item4": "Family-centered care"
+    },
+    "about_scd": {
+      "label": "About the Disease",
+      "badge_title": "Microscopy",
+      "badge_sub": "Sickle Cell vs Normal RBC",
+      "title1": "Understanding",
+      "title2": "Sickle Cell Disease",
+      "body1_bold1": "Normal cells are disc-shaped",
+      "body1_mid": "and move freely through vessels;",
+      "body1_bold2": "sickle cells are rigid and crescent-shaped",
+      "body1_end": ", causing painful blockages and organ damage.",
+      "body1_start": "Sickle Cell Disease (SCD) is a genetic condition affecting red blood cells.",
+      "learn_more": "Learn More About SCD"
+    },
+    "stats": {
+      "s1_num": "300M",
+      "s1_accent": "+",
+      "s1_desc": "People carry the Sickle Cell gene worldwide",
+      "s2_num": "1 in 4",
+      "s2_accent": "",
+      "s2_desc": "Chance of disease if both parents carry the gene",
+      "s3_num": "100",
+      "s3_accent": "%",
+      "s3_desc": "Preventable with proper genetic screening"
+    },
+    "features": {
+      "label": "What We Offer",
+      "title": "Our Features",
+      "subtitle": "Helping families understand and prevent SCD with modern, intelligent tools.",
+      "f1_title": "Genetic Screening",
+      "f1_desc": "Identify if you carry the sickle cell trait. Simple, accurate testing is the essential first step toward informed family planning.",
+      "f2_title": "Risk Assessment",
+      "f2_desc": "Use our ML dashboard to evaluate the probability of inheritance based on each parent's unique genetic profile.",
+      "f3_title": "Prevention & Care",
+      "f3_desc": "Access evidence-based educational resources designed to support patients, families, and healthcare providers."
+    }
+  },
+  "about": {
+    "hero": {
+      "pill": "Our Mission",
+      "title1": "Empowering Families",
+      "title2": "Through",
+      "title2_accent": "Genetic Clarity",
+      "subtitle": "LebanonGen is committed to reducing the impact of Sickle Cell Disease through innovative screening tools and community-driven education."
+    },
+    "breadcrumb": {
+      "home": "Home",
+      "current": "About Us"
+    },
+    "purpose": {
+      "badge_title": "LebanonGen",
+      "badge_sub": "Family-Centered Care",
+      "label": "Our Purpose",
+      "title1": "A Vision for a",
+      "title2": "Healthier Lebanon",
+      "body1": "Sickle Cell Disease (SCD) affects thousands of families across Lebanon. Our platform bridges the gap between complex genetic data and family planning.",
+      "body2": "By providing accessible, data-driven probability mapping, we empower parents to make the most informed decisions for their future children."
+    },
+    "values": {
+      "v1_title": "Science-First",
+      "v1_desc": "Every prediction is grounded in peer-reviewed genetic research and clinical data.",
+      "v2_title": "Community Care",
+      "v2_desc": "Tools shaped by the families and communities most affected by SCD in Lebanon.",
+      "v3_title": "Privacy Always",
+      "v3_desc": "Your genetic data stays yours. We never share or sell any personal information."
+    },
+    "team": {
+      "label": "The People Behind It",
+      "title": "Meet Our Team",
+      "subtitle": "Dedicated researchers, clinicians, and administrators working to make genetic screening accessible.",
+      "m1_name": "Dr. Ali Nader",
+      "m1_role": "Genetic Researcher",
+      "m2_name": "Dr. Leila Saab",
+      "m2_role": "Medical Consultant",
+      "m3_name": "Samir Fares",
+      "m3_role": "System Administrator"
+    }
+  },
+  "login": {
+    "left": {
+      "pill": "LebanonGen",
+      "title1": "Genetic clarity",
+      "title2": "for every family",
+      "subtitle": "AI-powered sickle cell disease risk prediction. Built for clinicians, designed for families across Lebanon.",
+      "trust1": "Evidence-based ML predictions",
+      "trust2": "Your data is always private",
+      "trust3": "Built for Lebanese communities",
+      "quote": "\"Knowledge is the first step toward prevention.\""
+    },
+    "form": {
+      "title": "Patient Portal",
+      "subtitle": "Sign in to access your genetic screening dashboard.",
+      "divider": "Secure Login",
+      "email_label": "Email Address",
+      "email_placeholder": "you@example.com",
+      "password_label": "Password",
+      "forgot": "Forgot credentials? Contact Admin",
+      "submit": "Sign In →",
+      "no_account": "Don't have an account?",
+      "register": "Register here",
+      "reset": "Reset Password",
+      "footer_note": "This portal is intended for authorized clinical use only."
+    }
+  },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Register to access the genetic screening platform.",
+    "email_label": "Email Address",
+    "email_placeholder": "you@example.com",
+    "password_label": "Password",
+    "confirm_label": "Confirm Password",
+    "submit": "Register →",
+    "have_account": "Already have an account?",
+    "login": "Sign in"
+  },
+  "reset": {
+    "title": "Reset Password",
+    "subtitle": "Enter your email to receive reset instructions.",
+    "email_label": "Email Address",
+    "email_placeholder": "you@example.com",
+    "submit": "Send Reset Link →",
+    "back_to_login": "Back to Login"
+  },
+  "footer": {
+    "tagline": "LebanonGen is dedicated to raising awareness about sickle cell disease and providing AI-powered tools for couples across Lebanon to understand their genetic compatibility.",
+    "nav_title": "Navigation",
+    "nav_home": "Home",
+    "nav_about": "About Us",
+    "nav_dashboard": "Health Dashboard",
+    "nav_login": "Patient Login",
+    "contact_title": "Contact Us",
+    "contact_location": "Beirut, Lebanon",
+    "copyright": "LebanonGen — Sickle Cell Awareness & Prevention",
+    "badge": "AI-Powered Platform"
+  },
+  "dashboard": {
+    "title": "Website Test Diagnostics",
+    "description": "This interactive map dashboard displays real-time statistical distributions based strictly on genetic screening tests taken directly on this website.",
+    "server": "Server Link: Connected",
+    "live": "Live Stream",
+    "loading": "Synchronizing live GIS map modules...",
+    "error_title": "Map Interface Offline",
+    "error_details": "Details:",
+    "error_note": "Please confirm your Express server is operating normally."
+  },
+  "map": {
+    "toggle_label": "Toggle Map View",
+    "combined": "Combined Total",
+    "carriers": "Carriers (AS)",
+    "affected": "Affected (SS)",
+    "carriers_label": "Carriers (AS):",
+    "affected_label": "Affected (SS):",
+    "total_label": "Total Cases:",
+    "governate": "Governate"
+  },
+  "form": {
+    "loading": "Loading your data…",
+    "badge": "Genetic Risk Assessment",
+    "title": "Couple Assessment Form",
+    "subtitle": "Complete both profiles to receive your AI-powered genetic risk analysis.",
+    "locked_title": "Assessment Already Submitted",
+    "locked_body": "Your genetic assessment has been completed. You can view your results below.",
+    "notice_title": "Important Notice",
+    "notice_body": "Please fill in all fields accurately. This information will be used to generate your genetic risk assessment.",
+    "section_personal": "Personal Information",
+    "section_personal_sub": "Basic demographic and identification data",
+    "section_blood": "Blood Type & Rh Factor",
+    "section_blood_sub": "ABO group and Rhesus factor",
+    "section_genetic": "Genotype & Family History",
+    "section_genetic_sub": "Sickle cell genotype and hereditary background",
+    "husband": "Husband",
+    "wife": "Wife",
+    "full_name": "Full Name",
+    "dob": "Date of Birth",
+    "region": "Region",
+    "blood_type": "Blood Type",
+    "rh_factor": "Rh Factor",
+    "genotype": "Genotype",
+    "family_history": "Family History",
+    "family_history_q_husband": "Is husband's family affected?",
+    "family_history_q_wife": "Is wife's family affected?",
+    "affected_child": "Do you have an affected child together?",
+    "select": "Select…",
+    "yes": "Yes",
+    "no": "No",
+    "positive": "Positive (+)",
+    "negative": "Negative (−)",
+    "aa_normal": "AA — Normal",
+    "as_carrier": "AS — Carrier",
+    "ss_affected": "SS — Affected",
+    "submit": "Run Genetic Assessment",
+    "analyzing": "Analyzing…",
+    "result_label": "Assessment Result",
+    "risk_probability": "Risk Probability",
+    "recommendation_label": "Recommendation",
+    "submitted_on": "Submitted on",
+    "disclaimer": "⚕️ This result is for informational purposes only. Please consult a licensed genetic counselor.",
+    "chat_link": "Discuss with AI Counselor",
+    "fill_all": "Please fill in all fields before submitting.",
+    "session_expired": "Session expired. Please log in again.",
+    "save_error": "Failed to save data. Please check your connection.",
+    "regions": {
+      "beirut": "Beirut",
+      "mount_lebanon": "Mount Lebanon",
+      "north": "North",
+      "south": "South",
+      "bekaa": "Bekaa",
+      "nabatieh": "Nabatieh",
+      "akkar": "Akkar",
+      "baalbek": "Baalbek-Hermel",
+      "keserwan": "Keserwan-Jbeil"
+    }
+  },
+  "chatbot": {
+    "title": "AI Genetic Counselor",
+    "subtitle": "Ask any question about your results or sickle cell disease.",
+    "placeholder": "Type your question here…",
+    "send": "Send",
+    "thinking": "Thinking…"
+  },
+  "drlog": {
+    "title": "Staff Portal",
+    "subtitle": "Sign in with your clinical credentials.",
+    "email_label": "Email",
+    "password_label": "Password",
+    "submit": "Sign In →",
+    "error_invalid": "Invalid credentials. Please try again."
+  },
+  "ml_results": {
+    "risk_levels": {
+      "Critical Risk": "Critical Risk",
+      "Very High Risk": "Very High Risk",
+      "High Risk": "High Risk",
+      "Moderate Risk": "Moderate Risk",
+      "Carrier Risk": "Carrier Risk",
+      "Low Risk": "Low Risk",
+      "Minimal Risk": "Minimal Risk"
+    },
+    "recommendations": {
+      "Immediate genetic counseling is strongly advised. Both partners carry high-risk genotypes. Consider advanced reproductive options such as IVF with preimplantation genetic diagnosis.": "Immediate genetic counseling is strongly advised. Both partners carry high-risk genotypes. Consider advanced reproductive options such as IVF with preimplantation genetic diagnosis.",
+      "Genetic counseling is highly recommended. There is a significant risk of having an affected child. Discuss family planning options with a specialist.": "Genetic counseling is highly recommended. There is a significant risk of having an affected child. Discuss family planning options with a specialist.",
+      "Consult a genetic counselor. There is a notable risk of passing the sickle cell trait or disease to your children.": "Consult a genetic counselor. There is a notable risk of passing the sickle cell trait or disease to your children.",
+      "Moderate risk detected. Genetic counseling is recommended to understand your options and plan accordingly.": "Moderate risk detected. Genetic counseling is recommended to understand your options and plan accordingly.",
+      "One or both partners are carriers. Children may inherit the carrier trait. Counseling is advised.": "One or both partners are carriers. Children may inherit the carrier trait. Counseling is advised.",
+      "Low risk of having a child with sickle cell disease, but regular monitoring is still recommended.": "Low risk of having a child with sickle cell disease, but regular monitoring is still recommended.",
+      "Minimal genetic risk detected. Continue regular health check-ups and consult your doctor if you have concerns.": "Minimal genetic risk detected. Continue regular health check-ups and consult your doctor if you have concerns."
+    }
+  }
+}
