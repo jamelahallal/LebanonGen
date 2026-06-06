@@ -6,9 +6,6 @@ import DashboardHeader from "../components/DashboardHeader";
 function SystemAdmin() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (localStorage.getItem("drEmail") === null) navigate("/drlog");
-  }, [navigate]);
   const [users, setUsers] = useState([]);
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("");
@@ -17,15 +14,16 @@ function SystemAdmin() {
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    // Get user info from localStorage
     const email = localStorage.getItem("drEmail");
     const role = localStorage.getItem("drRole");
+    if (!email || !role) {
+      navigate("/drlog");
+      return;
+    }
     setUserEmail(email);
     setUserRole(role);
-
-    // Fetch users
     fetchUsers();
-  }, []);
+  }, [navigate]);
 
   const fetchUsers = () => {
     setLoading(true);

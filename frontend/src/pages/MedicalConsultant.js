@@ -6,9 +6,6 @@ import DashboardHeader from "../components/DashboardHeader";
 function MedicalConsultant() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (localStorage.getItem("drEmail") === null) navigate("/drlog");
-  }, [navigate]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState("");
@@ -93,6 +90,10 @@ function MedicalConsultant() {
   useEffect(() => {
     const email = localStorage.getItem("drEmail");
     const role = localStorage.getItem("drRole");
+    if (!email || !role) {
+      navigate("/drlog");
+      return;
+    }
     setUserEmail(email);
     setUserRole(role);
 
@@ -111,7 +112,7 @@ function MedicalConsultant() {
         console.error("Error fetching assessments:", err);
         setLoading(false);
       });
-  }, []);
+  }, [navigate]);
 
   const totalCases = data.length;
   const criticalCases = data.filter(

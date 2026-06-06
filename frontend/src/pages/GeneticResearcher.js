@@ -6,9 +6,6 @@ import DashboardHeader from "../components/DashboardHeader";
 function GeneticResearcher() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (localStorage.getItem("drEmail") === null) navigate("/drlog");
-  }, [navigate]);
   const [regionStats, setRegionStats] = useState([]);
   const [overallStats, setOverallStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,9 +13,12 @@ function GeneticResearcher() {
   const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
-    // Get user info from localStorage
     const email = localStorage.getItem("drEmail");
     const role = localStorage.getItem("drRole");
+    if (!email || !role) {
+      navigate("/drlog");
+      return;
+    }
     setUserEmail(email);
     setUserRole(role);
 
