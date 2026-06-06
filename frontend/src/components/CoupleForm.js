@@ -160,7 +160,8 @@ const SelectWrap = ({ children }) => (
 );
 
 // ── ResultCard moved outside — fixes focus-loss bug ──
-const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
+const ResultCard = ({ assessmentData, husband, wife }) => {
+  const { t, i18n } = useTranslation();
   const { riskLevel, recommendation } = translateMLResult(assessmentData, t);
   const color = getRiskColor(assessmentData.riskLevel);
 
@@ -653,7 +654,9 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
 };
 
 // ── Consent Modal ──
-const ConsentModal = ({ onAccept, onDecline, t }) => (
+const ConsentModal = ({ onAccept, onDecline }) => {
+  const { t } = useTranslation();
+  return (
   <div className="cf-modal-overlay">
     <div className="cf-modal">
       <div className="cf-modal-header">
@@ -723,7 +726,8 @@ const ConsentModal = ({ onAccept, onDecline, t }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 // ── Region data (outside component — static, no need to recreate) ──
 const regionKeys = [
@@ -966,8 +970,6 @@ function CoupleForm() {
               assessmentData={existingData.assessment}
               husband={existingData.husband}
               wife={existingData.wife}
-              t={t}
-              i18n={i18n}
             />
           </div>
           <Footer />
@@ -983,7 +985,6 @@ function CoupleForm() {
       {/* Consent Modal */}
       {showConsentModal && pendingSubmit && (
         <ConsentModal
-          t={t}
           onAccept={() => doSubmit(true)}
           onDecline={() => doSubmit(false)}
         />
@@ -1435,8 +1436,6 @@ function CoupleForm() {
                 assessmentData={existingData.assessment}
                 husband={existingData.husband}
                 wife={existingData.wife}
-                t={t}
-                i18n={i18n}
               />
             </div>
           )}
