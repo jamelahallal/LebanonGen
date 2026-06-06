@@ -627,6 +627,7 @@ function CoupleForm() {
                   >
                     <input
                       name="husbandFullName"
+                      value={formData.husbandFullName}
                       onChange={handleChange}
                       className="cf-input"
                       placeholder={t("form.full_name")}
@@ -636,6 +637,7 @@ function CoupleForm() {
                     <input
                       type="date"
                       name="husbandDOB"
+                      value={formData.husbandDOB}
                       onChange={handleChange}
                       className="cf-input"
                     />
@@ -644,6 +646,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="husbandRegion"
+                        value={formData.husbandRegion}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -669,6 +672,7 @@ function CoupleForm() {
                   <Field label={`${t("form.wife")}'s ${t("form.full_name")}`}>
                     <input
                       name="wifeFullName"
+                      value={formData.wifeFullName}
                       onChange={handleChange}
                       className="cf-input"
                       placeholder={t("form.full_name")}
@@ -678,6 +682,7 @@ function CoupleForm() {
                     <input
                       type="date"
                       name="wifeDOB"
+                      value={formData.wifeDOB}
                       onChange={handleChange}
                       className="cf-input"
                     />
@@ -686,6 +691,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="wifeRegion"
+                        value={formData.wifeRegion}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -738,6 +744,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="husbandbloodtype"
+                        value={formData.husbandbloodtype}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -754,6 +761,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="wifebloodtype"
+                        value={formData.wifebloodtype}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -772,6 +780,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="husbandrhfactor"
+                        value={formData.husbandrhfactor}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -785,6 +794,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="wiferhfactor"
+                        value={formData.wiferhfactor}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -832,6 +842,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="husbandgenotype"
+                        value={formData.husbandgenotype}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -846,6 +857,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="wifegenotype"
+                        value={formData.wifegenotype}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -862,6 +874,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="HusbandfamilyHistory"
+                        value={formData.HusbandfamilyHistory}
                         onChange={handleChange}
                         className="cf-select"
                       >
@@ -879,6 +892,7 @@ function CoupleForm() {
                     <SelectWrap>
                       <select
                         name="WifefamilyHistory"
+                        value={formData.WifefamilyHistory}
                         onChange={handleChange}
                         className="cf-select"
                       >
