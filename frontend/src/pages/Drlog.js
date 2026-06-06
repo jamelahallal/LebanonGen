@@ -103,9 +103,23 @@ function Drlog() {
         `${process.env.REACT_APP_API_URL}/api/admin/doctor-login`,
         { email, password },
       );
+
       if (response.data.token) {
         localStorage.setItem("doctorToken", response.data.token);
-        navigate("/drdash");
+        localStorage.setItem("doctorRole", response.data.role);
+        localStorage.setItem("doctorName", response.data.name);
+
+        const role = response.data.role;
+
+        if (role === "Admin") {
+          navigate("/dashboard/admin");
+        } else if (role === "Consultant") {
+          navigate("/dashboard/consultant");
+        } else if (role === "Researcher") {
+          navigate("/dashboard/researcher");
+        } else {
+          setError("Unrecognized role. Please contact the administrator.");
+        }
       }
     } catch (err) {
       setError(
