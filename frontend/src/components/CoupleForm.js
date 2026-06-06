@@ -160,8 +160,7 @@ const SelectWrap = ({ children }) => (
 );
 
 // ── ResultCard moved outside — fixes focus-loss bug ──
-const ResultCard = ({ assessmentData, husband, wife }) => {
-  const { t, i18n } = useTranslation();
+const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
   const { riskLevel, recommendation } = translateMLResult(assessmentData, t);
   const color = getRiskColor(assessmentData.riskLevel);
 
@@ -187,13 +186,24 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
     return `mailto:leila.saab@lebanongen.com?subject=${subject}&body=${body}`;
   };
 
+
+  // Risk badge accent color for PDF
+  const getRiskBadgeRGB = (rl) => {
+    if (!rl) return [136, 136, 136];
+    const l = rl.toLowerCase();
+    if (l.includes("critical")) return [180, 0, 0];
+    if (l.includes("very high")) return [200, 30, 30];
+    if (l.includes("high")) return [217, 79, 0];
+    if (l.includes("moderate") || l.includes("carrier")) return [180, 120, 0];
+    return [34, 120, 50];
+  };
+
   // ── Generate PDF client-side ──
   const handleDownloadPDF = () => {
-    // Dynamically import jsPDF to keep bundle clean
     import("jspdf")
-      .then(({ jsPDF }) => {
+      .then((module) => {
+       const jsPDF = module.jsPDF || module.default?.jsPDF || module.default;
         const lang = i18n.language || "en";
-        const isRTL = lang === "ar";
         const doc = new jsPDF({
           orientation: "portrait",
           unit: "mm",
@@ -212,45 +222,22 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
           doc.setFontSize(size);
         };
         const drawRect = (x, yy, w, h, fillColor, strokeColor) => {
-          if (fillColor) {
-            doc.setFillColor(...fillColor);
-          }
-          if (strokeColor) {
-            doc.setDrawColor(...strokeColor);
-          } else {
-            doc.setDrawColor(255, 255, 255);
-          }
-          doc.roundedRect(
-            x,
-            yy,
-            w,
-            h,
-            3,
-            3,
-            fillColor ? (strokeColor ? "FD" : "F") : "S",
-          );
-        };
-        const addText = (text, x, yy, opts = {}) => {
-          setFont(opts.style || "normal", opts.size || 11);
-          doc.setTextColor(...(opts.color || [31, 41, 55]));
-          if (opts.align) {
-            doc.text(String(text), x, yy, { align: opts.align });
-          } else {
-            doc.text(String(text), x, yy);
-          }
+          if (fillColor) doc.setFillColor(...fillColor);
+          if (strokeColor) doc.setDrawColor(...strokeColor);
+          else doc.setDrawColor(255, 255, 255);
+          doc.roundedRect(x, yy, w, h, 3, 3, fillColor ? (strokeColor ? "FD" : "F") : "S");
         };
         const wrapText = (text, x, yy, maxW, lineH = 6, opts = {}) => {
           setFont(opts.style || "normal", opts.size || 10);
           doc.setTextColor(...(opts.color || [55, 65, 81]));
-          const lines = doc.splitTextToSize(String(text), maxW);
+          // Strip all emoji/non-latin characters to avoid jsPDF garbling
+          const clean = String(text).replace(/[^\x00-\x7F]/g, "");
+          const lines = doc.splitTextToSize(clean, maxW);
           doc.text(lines, x, yy);
           return yy + lines.length * lineH;
         };
         const checkPage = (needed = 20) => {
-          if (y + needed > pageH - margin) {
-            doc.addPage();
-            y = margin;
-          }
+          if (y + needed > pageH - margin) { doc.addPage(); y = margin; }
         };
 
         // ── Header banner ──
@@ -261,46 +248,51 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
         setFont("normal", 10);
         doc.setTextColor(252, 202, 202);
         doc.text(
-          t("form.pdf_subtitle", {
-            defaultValue: "Genetic Risk Assessment Report",
-          }),
-          margin,
-          27,
+          t("form.pdf_subtitle", { defaultValue: "Genetic Risk Assessment Report" }),
+          margin, 27,
         );
-        const dateStr = new Date().toLocaleDateString(
-          lang === "ar" ? "ar-LB" : lang === "fr" ? "fr-FR" : "en-GB",
-          {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          },
-        );
+        const dateStr = new Date().toLocaleDateString("en-GB", {
+          day: "numeric", month: "long", year: "numeric",
+        });
         doc.text(dateStr, pageW - margin, 27, { align: "right" });
         y = 54;
 
-        // ── Risk result box ──
+        // ── Risk result box — clean design, no emoji ──
         const riskColorRGB = color.startsWith("#")
-          ? [
-              parseInt(color.slice(1, 3), 16),
-              parseInt(color.slice(3, 5), 16),
-              parseInt(color.slice(5, 7), 16),
-            ]
+          ? [parseInt(color.slice(1,3),16), parseInt(color.slice(3,5),16), parseInt(color.slice(5,7),16)]
           : [127, 29, 29];
-        drawRect(margin, y, contentW, 28, [...riskColorRGB]);
-        setFont("bold", 14);
+        const badgeRGB = getRiskBadgeRGB(assessmentData.riskLevel);
+
+        // Main colored background
+        drawRect(margin, y, contentW, 32, [...riskColorRGB]);
+
+        // Small accent badge (darker shade) on the left
+        doc.setFillColor(...badgeRGB);
+        doc.roundedRect(margin + 6, y + 7, 18, 18, 2, 2, "F");
+
+        // Probability number inside the badge
+        setFont("bold", 11);
         doc.setTextColor(255, 255, 255);
         doc.text(
-          `${getRiskIcon(assessmentData.riskLevel)}  ${riskLevel}`,
-          margin + 8,
-          y + 11,
+          `${Math.round(Number(assessmentData.probability || 0))}%`,
+          margin + 15, y + 18,
+          { align: "center" }
         );
-        setFont("normal", 10);
+
+        // Risk level text
+        setFont("bold", 15);
+        doc.setTextColor(255, 255, 255);
+        doc.text(riskLevel, margin + 30, y + 14);
+
+        // Risk probability label below
+        setFont("normal", 9);
+        doc.setTextColor(255, 255, 255, 0.75);
+        doc.setTextColor(240, 200, 200);
         doc.text(
-          `${t("form.risk_probability", { defaultValue: "Risk Probability" })}: ${assessmentData.probability || "N/A"}%`,
-          margin + 8,
-          y + 21,
+          `${t("form.risk_probability", { defaultValue: "Risk Probability" })}: ${Number(assessmentData.probability || 0).toFixed(2)}%`,
+          margin + 30, y + 24,
         );
-        y += 36;
+        y += 42;
 
         // ── Recommendation ──
         checkPage(30);
@@ -309,14 +301,11 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
         doc.setTextColor(127, 29, 29);
         doc.text(
           t("form.recommendation_label", { defaultValue: "Recommendation" }),
-          margin + 6,
-          y + 5.5,
+          margin + 6, y + 5.5,
         );
         y += 12;
-        drawRect(margin, y, contentW, 2, [253, 242, 242]);
-        y = wrapText(recommendation, margin + 6, y + 6, contentW - 12, 6, {
-          size: 10,
-          color: [55, 65, 81],
+        y = wrapText(recommendation, margin + 6, y + 2, contentW - 12, 6, {
+          size: 10, color: [55, 65, 81],
         });
         y += 8;
 
@@ -327,24 +316,20 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
         doc.setTextColor(127, 29, 29);
         doc.text(
           t("form.section_personal", { defaultValue: "Personal Information" }),
-          margin + 6,
-          y + 5.5,
+          margin + 6, y + 5.5,
         );
         y += 12;
 
         const infoRows = [
-          [
-            t("form.husband", { defaultValue: "Husband" }),
-            husband?.fullName || "—",
-          ],
-          [t("form.wife", { defaultValue: "Wife" }), wife?.fullName || "—"],
+          [t("form.husband", { defaultValue: "Husband" }), husband?.fullName || "-"],
+          [t("form.wife", { defaultValue: "Wife" }), wife?.fullName || "-"],
           [
             `${t("form.husband", { defaultValue: "Husband" })} ${t("form.genotype", { defaultValue: "Genotype" })}`,
-            (husband?.genotype || "—").toUpperCase(),
+            (husband?.genotype || "-").toUpperCase(),
           ],
           [
             `${t("form.wife", { defaultValue: "Wife" })} ${t("form.genotype", { defaultValue: "Genotype" })}`,
-            (wife?.genotype || "—").toUpperCase(),
+            (wife?.genotype || "-").toUpperCase(),
           ],
         ];
 
@@ -361,19 +346,16 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
         });
         y += 8;
 
-        // ── Disclaimer ──
+        // ── Disclaimer (strip emoji) ──
         checkPage(24);
         drawRect(margin, y, contentW, 20, [255, 251, 235], [252, 211, 77]);
         setFont("normal", 9);
         doc.setTextColor(146, 64, 14);
-        const disclaimerText = t("form.disclaimer", {
-          defaultValue:
-            "⚕️ This result is for informational purposes only. Please consult a licensed genetic counselor.",
+        const disclaimerRaw = t("form.disclaimer", {
+          defaultValue: "This result is for informational purposes only. Please consult a licensed genetic counselor.",
         });
-        const disclaimerLines = doc.splitTextToSize(
-          disclaimerText.replace("⚕️ ", "⚕ "),
-          contentW - 12,
-        );
+        const disclaimerClean = disclaimerRaw.replace(/[^\x00-\x7F]/g, "").trim();
+        const disclaimerLines = doc.splitTextToSize(disclaimerClean, contentW - 12);
         doc.text(disclaimerLines, margin + 6, y + 6);
         y += 24;
 
@@ -384,34 +366,38 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
         doc.setTextColor(22, 101, 52);
         doc.text(
           t("form.dr_consult_title", { defaultValue: "Consult a Specialist" }),
-          margin + 6,
-          y + 7,
+          margin + 6, y + 7,
         );
         setFont("normal", 9);
         doc.setTextColor(21, 128, 61);
-        doc.text(
-          "Dr. Leila Saab  —  leila.saab@lebanongen.com",
-          margin + 6,
-          y + 14,
-        );
+        doc.text("Dr. Leila Saab  -  leila.saab@lebanongen.com", margin + 6, y + 14);
         y += 24;
 
         // ── Footer ──
         setFont("normal", 8);
         doc.setTextColor(209, 213, 219);
         doc.text(
-          "LebanonGen  ·  Beirut, Lebanon  ·  www.lebaongen.com",
-          pageW / 2,
-          pageH - 10,
-          { align: "center" },
+          "LebanonGen  -  Beirut, Lebanon  -  www.lebanongen.com",
+          pageW / 2, pageH - 10, { align: "center" },
         );
 
-        doc.save(`LebanonGen_Assessment_${Date.now()}.pdf`);
+        // ── Mobile-safe download: use blob URL instead of doc.save() ──
+        const filename = `LebanonGen_Assessment_${Date.now()}.pdf`;
+        const blob = doc.output("blob");
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 1000);
       })
-      .catch(() => {
-        alert(
-          "PDF generation failed. Please make sure jsPDF is installed: npm install jspdf",
-        );
+      .catch((err) => {
+        alert("PDF error: " + err.message);
       });
   };
 
@@ -475,7 +461,7 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
             <div
               className="cf-prob-bar-fill"
               style={{
-                width: `${assessmentData.probability}%`,
+               width: `${Number(assessmentData.probability || 0)}%`,
                 background: `linear-gradient(90deg, ${color}, ${color}99)`,
               }}
             />
@@ -654,9 +640,7 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
 };
 
 // ── Consent Modal ──
-const ConsentModal = ({ onAccept, onDecline }) => {
-  const { t } = useTranslation();
-  return (
+const ConsentModal = ({ onAccept, onDecline, t }) => (
   <div className="cf-modal-overlay">
     <div className="cf-modal">
       <div className="cf-modal-header">
@@ -726,8 +710,7 @@ const ConsentModal = ({ onAccept, onDecline }) => {
       </div>
     </div>
   </div>
-  );
-};
+);
 
 // ── Region data (outside component — static, no need to recreate) ──
 const regionKeys = [
@@ -970,6 +953,8 @@ function CoupleForm() {
               assessmentData={existingData.assessment}
               husband={existingData.husband}
               wife={existingData.wife}
+              t={t}
+              i18n={i18n}
             />
           </div>
           <Footer />
@@ -985,6 +970,7 @@ function CoupleForm() {
       {/* Consent Modal */}
       {showConsentModal && pendingSubmit && (
         <ConsentModal
+          t={t}
           onAccept={() => doSubmit(true)}
           onDecline={() => doSubmit(false)}
         />
@@ -1436,6 +1422,8 @@ function CoupleForm() {
                 assessmentData={existingData.assessment}
                 husband={existingData.husband}
                 wife={existingData.wife}
+                t={t}
+                i18n={i18n}
               />
             </div>
           )}
