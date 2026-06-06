@@ -80,79 +80,95 @@ function GeneticResearcher() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
-          <div className="bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl shadow-lg p-6 text-white">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-10">
+          <div className="bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-100 text-sm uppercase font-bold">
+                <p className="text-gray-100 text-xs sm:text-sm uppercase font-bold leading-tight">
                   Total Regions
                 </p>
-                <p className="text-4xl font-bold mt-2">{totalRegions}</p>
-                <p className="text-gray-100 text-xs mt-1">Geographic areas</p>
+                <p className="text-2xl sm:text-4xl font-bold mt-1 sm:mt-2">
+                  {totalRegions}
+                </p>
+                <p className="text-gray-100 text-xs mt-1 hidden sm:block">
+                  Geographic areas
+                </p>
               </div>
-              <div className="text-4xl">🗺️</div>
+              <div className="text-2xl sm:text-4xl">🗺️</div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm uppercase font-bold">
+                <p className="text-green-100 text-xs sm:text-sm uppercase font-bold leading-tight">
                   Normal (AA)
                 </p>
-                <p className="text-4xl font-bold mt-2">{totalNormal}</p>
-                <p className="text-green-100 text-xs mt-1">No genetic issues</p>
+                <p className="text-2xl sm:text-4xl font-bold mt-1 sm:mt-2">
+                  {totalNormal}
+                </p>
+                <p className="text-green-100 text-xs mt-1 hidden sm:block">
+                  No genetic issues
+                </p>
               </div>
-              <div className="text-4xl">✅</div>
+              <div className="text-2xl sm:text-4xl">✅</div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-yellow-100 text-sm uppercase font-bold">
+                <p className="text-yellow-100 text-xs sm:text-sm uppercase font-bold leading-tight">
                   Carriers (AS)
                 </p>
-                <p className="text-4xl font-bold mt-2">{totalCarriers}</p>
-                <p className="text-yellow-100 text-xs mt-1">
+                <p className="text-2xl sm:text-4xl font-bold mt-1 sm:mt-2">
+                  {totalCarriers}
+                </p>
+                <p className="text-yellow-100 text-xs mt-1 hidden sm:block">
                   Sickle cell trait
                 </p>
               </div>
-              <div className="text-4xl">🧬</div>
+              <div className="text-2xl sm:text-4xl">🧬</div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-lg p-4 sm:p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-red-100 text-sm uppercase font-bold">
+                <p className="text-red-100 text-xs sm:text-sm uppercase font-bold leading-tight">
                   Infected (SS)
                 </p>
-                <p className="text-4xl font-bold mt-2">{totalInfected}</p>
-                <p className="text-red-100 text-xs mt-1">Sickle cell disease</p>
+                <p className="text-2xl sm:text-4xl font-bold mt-1 sm:mt-2">
+                  {totalInfected}
+                </p>
+                <p className="text-red-100 text-xs mt-1 hidden sm:block">
+                  Sickle cell disease
+                </p>
               </div>
-              <div className="text-4xl">⚠️</div>
+              <div className="text-2xl sm:text-4xl">⚠️</div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-4 sm:p-6 text-white col-span-2 sm:col-span-1">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm uppercase font-bold">
+                <p className="text-purple-100 text-xs sm:text-sm uppercase font-bold leading-tight">
                   Total Individuals
                 </p>
-                <p className="text-4xl font-bold mt-2">{totalIndividuals}</p>
-                <p className="text-purple-100 text-xs mt-1">
+                <p className="text-2xl sm:text-4xl font-bold mt-1 sm:mt-2">
+                  {totalIndividuals}
+                </p>
+                <p className="text-purple-100 text-xs mt-1 hidden sm:block">
                   All tested people
                 </p>
               </div>
-              <div className="text-4xl">👥</div>
+              <div className="text-2xl sm:text-4xl">👥</div>
             </div>
           </div>
         </div>
 
         {/* Regions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {regionStats.map((region) => {
             const hasData = region.total_individuals > 0;
 

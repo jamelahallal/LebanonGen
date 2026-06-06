@@ -142,132 +142,190 @@ function MedicalConsultant() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-600">
-            <p className="text-xs text-gray-500 uppercase font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-red-600">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
               Critical
             </p>
-            <p className="text-2xl font-bold text-red-600">{criticalCases}</p>
+            <p className="text-xl sm:text-2xl font-bold text-red-600">
+              {criticalCases}
+            </p>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-700">
-            <p className="text-xs text-gray-500 uppercase font-bold">
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-orange-700">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
               Very High Risk
             </p>
-            <p className="text-2xl font-bold text-orange-700">
+            <p className="text-xl sm:text-2xl font-bold text-orange-700">
               {veryHighRiskCases}
             </p>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500">
-            <p className="text-xs text-gray-500 uppercase font-bold">
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-orange-500">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
               High Risk
             </p>
-            <p className="text-2xl font-bold text-orange-500">
+            <p className="text-xl sm:text-2xl font-bold text-orange-500">
               {highRiskCases}
             </p>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400">
-            <p className="text-xs text-gray-500 uppercase font-bold">
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-yellow-400">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
               Carrier Risk
             </p>
-            <p className="text-2xl font-bold text-yellow-600">{carrierCases}</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-600">
+              {carrierCases}
+            </p>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
-            <p className="text-xs text-gray-500 uppercase font-bold">
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-green-500">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
               Low Risk
             </p>
-            <p className="text-2xl font-bold text-green-600">{lowRiskCases}</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-600">
+              {lowRiskCases}
+            </p>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
-            <p className="text-xs text-gray-500 uppercase font-bold">
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-blue-500 col-span-2 sm:col-span-1">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
               Total Cases
             </p>
-            <p className="text-2xl font-bold text-blue-600">{totalCases}</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-600">
+              {totalCases}
+            </p>
           </div>
         </div>
 
-        {/* Table */}
+        {/* Mobile Cards / Desktop Table */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Couple Email
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Risk Level
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Probability
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Recommendation
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-10 text-center">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : data.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-10 text-center">
-                      No assessments found.
-                    </td>
-                  </tr>
-                ) : (
-                  data.map((item) => {
-                    // Read the clean whole number directly from your mapped dataset
-                    const percentValue = item.percentValue;
-                    return (
-                      <tr key={item.AssessmentID} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                          {item.Email}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getRiskColor(item.riskLevel)}`}
-                          >
-                            {item.riskLevel}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-3">
-                            <span className="font-bold w-12">
-                              {percentValue}%
+          {loading ? (
+            <div className="px-6 py-10 text-center text-gray-500">
+              Loading...
+            </div>
+          ) : data.length === 0 ? (
+            <div className="px-6 py-10 text-center text-gray-500">
+              No assessments found.
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table — hidden on small screens */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Couple Email
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Risk Level
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Probability
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Recommendation
+                      </th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {data.map((item) => {
+                      const percentValue = item.percentValue;
+                      return (
+                        <tr
+                          key={item.AssessmentID}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                            {item.Email}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getRiskColor(item.riskLevel)}`}
+                            >
+                              {item.riskLevel}
                             </span>
-                            <div className="w-24 bg-gray-200 rounded-full h-2">
-                              <div
-                                className={`h-2 rounded-full ${getProgressColor(item.Probability)}`}
-                                style={{ width: `${percentValue}%` }}
-                              ></div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center space-x-3">
+                              <span className="font-bold w-12">
+                                {percentValue}%
+                              </span>
+                              <div className="w-24 bg-gray-200 rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full ${getProgressColor(item.Probability)}`}
+                                  style={{ width: `${percentValue}%` }}
+                                ></div>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                          {item.Recommendation}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleViewReport(item.Email)}
-                            className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 text-sm font-medium"
-                          >
-                            View Report
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                            {item.Recommendation}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => handleViewReport(item.Email)}
+                              className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 text-sm font-medium"
+                            >
+                              View Report
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards — visible only on small screens */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {data.map((item) => {
+                  const percentValue = item.percentValue;
+                  return (
+                    <div key={item.AssessmentID} className="p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-gray-900 break-all">
+                          {item.Email}
+                        </p>
+                        <span
+                          className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskColor(item.riskLevel)}`}
+                        >
+                          {item.riskLevel}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="text-xs text-gray-500 uppercase font-semibold">
+                            Probability:
+                          </span>
+                          <span className="font-bold text-sm">
+                            {percentValue}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${getProgressColor(item.Probability)}`}
+                            style={{ width: `${percentValue}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        <span className="font-semibold text-gray-500 uppercase">
+                          Rec:{" "}
+                        </span>
+                        {item.Recommendation}
+                      </p>
+                      <button
+                        onClick={() => handleViewReport(item.Email)}
+                        className="w-full text-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 text-sm font-medium"
+                      >
+                        View Report
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -281,11 +339,11 @@ function MedicalConsultant() {
           ></div>
 
           {/* Modal Content */}
-          <div className="relative min-h-screen flex items-center justify-center p-4">
-            <div className="relative bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="relative min-h-screen flex items-center justify-center p-0 sm:p-4">
+            <div className="relative bg-white sm:rounded-xl shadow-xl max-w-4xl w-full h-screen sm:h-auto sm:max-h-[90vh] overflow-y-auto">
               {/* Modal Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-800">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                   Couple Genetic Report
                 </h2>
                 <button
@@ -297,7 +355,7 @@ function MedicalConsultant() {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {modalLoading ? (
                   <div className="text-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -310,7 +368,7 @@ function MedicalConsultant() {
                       <h3 className="font-semibold text-gray-700 mb-2">
                         Couple Information
                       </h3>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                         <div>
                           <span className="text-gray-500">Email:</span>{" "}
                           {selectedCouple.email}
@@ -513,7 +571,7 @@ function MedicalConsultant() {
               </div>
 
               {/* Modal Footer */}
-              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-end">
                 <button
                   onClick={closeModal}
                   className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"

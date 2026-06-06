@@ -3,15 +3,89 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/DashboardHeader";
 
-function SystemAdmin() {
+function MedicalConsultant() {
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState([]);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [resettingEmail, setResettingEmail] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
+  const [selectedCouple, setSelectedCouple] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  // Helper: Normalize probability to 0-1 range
+  const normalizeProbability = (prob) => {
+    if (prob === null || prob === undefined) return 0;
+    if (prob >= 0 && prob <= 1) return prob;
+    if (prob > 1 && prob <= 100) return prob / 100;
+    if (prob > 100) return 1;
+    return 0;
+  };
+
+  const parsePercent = (prob) => {
+    if (prob === null || prob === undefined) return 0;
+    return parseFloat(prob);
+  };
+
+  //risk thresholds to evaluate whole percentage numbers out of 100
+  const getRiskLevel = (probability) => {
+    const percent = parsePercent(probability);
+    if (percent >= 75.0) return "CRITICAL";
+    if (percent >= 45.0) return "VERY HIGH RISK";
+    if (percent >= 20.0) return "HIGH RISK";
+    if (percent >= 5.0) return "CARRIER RISK";
+    return "LOW RISK";
+  };
+
+  // colors mapped perfectly to the clean strings
+  const getRiskColor = (riskLevel) => {
+    switch (riskLevel) {
+      case "CRITICAL":
+        return "bg-red-600 text-white";
+      case "VERY HIGH RISK":
+        return "bg-orange-700 text-white";
+      case "HIGH RISK":
+        return "bg-orange-500 text-white";
+      case "CARRIER RISK":
+        return "bg-yellow-400 text-yellow-900";
+      default:
+        return "bg-green-500 text-white";
+    }
+  };
+
+  // visual progress bar color picker to match whole percents
+  const getProgressColor = (probability) => {
+    const percent = parsePercent(probability);
+    if (percent >= 75.0) return "bg-red-600";
+    if (percent >= 45.0) return "bg-orange-700";
+    if (percent >= 20.0) return "bg-orange-500";
+    if (percent >= 5.0) return "bg-yellow-400";
+    return "bg-green-500";
+  };
+
+  // Handle View Report click
+  const handleViewReport = async (email) => {
+    setModalLoading(true);
+    setShowModal(true);
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/admin/couple-details/${encodeURIComponent(email)}`,
+      );
+      setSelectedCouple(response.data);
+    } catch (error) {
+      console.error("Error fetching couple details:", error);
+      alert("Failed to load couple details");
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedCouple(null);
+  };
 
   useEffect(() => {
     const email = localStorage.getItem("drEmail");
@@ -22,355 +96,495 @@ function SystemAdmin() {
     }
     setUserEmail(email);
     setUserRole(role);
-    fetchUsers();
+
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/api/admin/assessments`)
+      .then((res) => {
+        const normalizedData = res.data.map((item) => ({
+          ...item,
+          percentValue: Math.round(parsePercent(item.Probability)), // Save clean whole number directly
+          riskLevel: getRiskLevel(item.Probability),
+        }));
+        setData(normalizedData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching assessments:", err);
+        setLoading(false);
+      });
   }, [navigate]);
 
-  const fetchUsers = () => {
-    setLoading(true);
-    axios
-      .get(`${process.env.REACT_APP_API_URL}/api/admin/users-overview`)
-      .then((res) => {
-        setUsers(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  };
-
-  // Reset password function - sets password to email
-  const handleResetPassword = async (email, userType, userName) => {
-    if (
-      !window.confirm(
-        `Reset password for ${email}?\n\nThe password will be set to their email address.`,
-      )
-    ) {
-      return;
-    }
-
-    setResettingEmail(email);
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/admin/reset-password`,
-        { email, userType, userName },
-      );
-
-      if (response.status === 200) {
-        alert(
-          `✅ Password reset successful!\n\nPassword for ${email} has been set to: ${email}\n\nPlease inform the user to login with their email as password.`,
-        );
-      }
-    } catch (error) {
-      console.error("Reset password error:", error);
-      alert("❌ Failed to reset password. Please try again.");
-    } finally {
-      setResettingEmail(null);
-    }
-  };
-
-  // Delete staff only (not couples)
-  const handleDeleteStaff = (email, name) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete staff member: ${name || email}?\n\nThis action cannot be undone.`,
-      )
-    ) {
-      return;
-    }
-
-    setDeletingId(email);
-
-    axios
-      .delete(
-        `${process.env.REACT_APP_API_URL}/api/admin/delete-staff/${email}`,
-      )
-      .then(() => {
-        setUsers(users.filter((u) => u.Email !== email));
-        alert("✅ Staff member deleted successfully");
-      })
-      .catch((err) => {
-        console.error("Delete failed:", err);
-        alert("❌ Failed to delete staff member");
-      })
-      .finally(() => {
-        setDeletingId(null);
-      });
-  };
-
-  const staff = users.filter((u) => u.type?.toLowerCase().includes("doctor"));
-  const couples = users.filter((u) => u.type?.toLowerCase().includes("couple"));
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading user data...</p>
-        </div>
-      </div>
-    );
-  }
+  const totalCases = data.length;
+  const criticalCases = data.filter(
+    (item) => item.riskLevel === "CRITICAL",
+  ).length;
+  const veryHighRiskCases = data.filter(
+    (item) => item.riskLevel === "VERY HIGH RISK",
+  ).length;
+  const highRiskCases = data.filter(
+    (item) => item.riskLevel === "HIGH RISK",
+  ).length;
+  const carrierCases = data.filter(
+    (item) => item.riskLevel === "CARRIER RISK",
+  ).length;
+  const lowRiskCases = data.filter(
+    (item) => item.riskLevel === "LOW RISK",
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader
-        title="System Administration"
-        subtitle="Manage staff, reset passwords, and monitor system access"
+        title="Clinical Risk Review"
+        subtitle="Review and manage high-risk genetic assessments"
         userEmail={userEmail}
         userRole={userRole}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm uppercase font-bold">
-                  Total Staff
-                </p>
-                <p className="text-4xl font-bold mt-2">{staff.length}</p>
-              </div>
-              <div className="text-4xl">👥</div>
-            </div>
+        {/* Stats Summary */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-red-600">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
+              Critical
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-red-600">
+              {criticalCases}
+            </p>
           </div>
-
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm uppercase font-bold">
-                  Registered Couples
-                </p>
-                <p className="text-4xl font-bold mt-2">{couples.length}</p>
-              </div>
-            </div>
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-orange-700">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
+              Very High Risk
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-orange-700">
+              {veryHighRiskCases}
+            </p>
+          </div>
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-orange-500">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
+              High Risk
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-orange-500">
+              {highRiskCases}
+            </p>
+          </div>
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-yellow-400">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
+              Carrier Risk
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-600">
+              {carrierCases}
+            </p>
+          </div>
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-green-500">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
+              Low Risk
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-green-600">
+              {lowRiskCases}
+            </p>
+          </div>
+          <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border-l-4 border-blue-500 col-span-2 sm:col-span-1">
+            <p className="text-xs text-gray-500 uppercase font-bold leading-tight">
+              Total Cases
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-600">
+              {totalCases}
+            </p>
           </div>
         </div>
 
-        {/* Staff Section - Can Delete */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xl font-semibold text-gray-800">
-                Medical Staff
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                Manage staff accounts - reset passwords or remove access
-              </p>
+        {/* Mobile Cards / Desktop Table */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+          {loading ? (
+            <div className="px-6 py-10 text-center text-gray-500">
+              Loading...
             </div>
-            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
-              {staff.length} Total
-            </span>
-          </div>
-
-          <div className="bg-white shadow-lg rounded-xl overflow-hidden">
-            {staff.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                No staff members found.
+          ) : data.length === 0 ? (
+            <div className="px-6 py-10 text-center text-gray-500">
+              No assessments found.
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table — hidden on small screens */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Couple Email
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Risk Level
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Probability
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Recommendation
+                      </th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {data.map((item) => {
+                      const percentValue = item.percentValue;
+                      return (
+                        <tr
+                          key={item.AssessmentID}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                            {item.Email}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getRiskColor(item.riskLevel)}`}
+                            >
+                              {item.riskLevel}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center space-x-3">
+                              <span className="font-bold w-12">
+                                {percentValue}%
+                              </span>
+                              <div className="w-24 bg-gray-200 rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full ${getProgressColor(item.Probability)}`}
+                                  style={{ width: `${percentValue}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                            {item.Recommendation}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => handleViewReport(item.Email)}
+                              className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 text-sm font-medium"
+                            >
+                              View Report
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {staff.map((u, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center p-6 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                        {u.Name?.charAt(0) || u.Email.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {u.Name || "N/A"}
+
+              {/* Mobile Cards — visible only on small screens */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {data.map((item) => {
+                  const percentValue = item.percentValue;
+                  return (
+                    <div key={item.AssessmentID} className="p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-gray-900 break-all">
+                          {item.Email}
                         </p>
-                        <p className="text-sm text-gray-500">{u.Email}</p>
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
-                          {u.Role || "Staff"}
+                        <span
+                          className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskColor(item.riskLevel)}`}
+                        >
+                          {item.riskLevel}
                         </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      {/* Reset Password Button for Staff */}
-                      <button
-                        onClick={() =>
-                          handleResetPassword(u.Email, "staff", u.Name)
-                        }
-                        disabled={resettingEmail === u.Email}
-                        className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {resettingEmail === u.Email ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                            <span>Resetting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                              />
-                            </svg>
-                            <span>Reset Password</span>
-                          </>
-                        )}
-                      </button>
-
-                      {/* Delete Staff Button */}
-                      <button
-                        onClick={() => handleDeleteStaff(u.Email, u.Name)}
-                        disabled={deletingId === u.Email}
-                        className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {deletingId === u.Email ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                            <span>Deleting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                            <span>Delete</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Couples Section - Only Reset Password (sets password to email) */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xl font-semibold text-gray-800">
-                Registered Couples
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                Reset couple passwords - password will be set to their email
-                address
-              </p>
-            </div>
-            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-              {couples.length} Total
-            </span>
-          </div>
-
-          <div className="bg-white shadow-lg rounded-xl overflow-hidden">
-            {couples.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                No couples registered yet.
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {couples.map((u, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center p-6 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
-                        {u.Email.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{u.Email}</p>
-                        <p className="text-sm text-gray-500">Registered User</p>
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-xs">
-                          Couple Account
-                        </span>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="text-xs text-gray-500 uppercase font-semibold">
+                            Probability:
+                          </span>
+                          <span className="font-bold text-sm">
+                            {percentValue}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${getProgressColor(item.Probability)}`}
+                            style={{ width: `${percentValue}%` }}
+                          ></div>
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      {/* Only Reset Password Button for Couples - sets password to their email */}
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        <span className="font-semibold text-gray-500 uppercase">
+                          Rec:{" "}
+                        </span>
+                        {item.Recommendation}
+                      </p>
                       <button
-                        onClick={() =>
-                          handleResetPassword(u.Email, "couple", null)
-                        }
-                        disabled={resettingEmail === u.Email}
-                        className="bg-orange-50 text-orange-600 px-4 py-2 rounded-lg hover:bg-orange-100 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleViewReport(item.Email)}
+                        className="w-full text-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 text-sm font-medium"
                       >
-                        {resettingEmail === u.Email ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-600"></div>
-                            <span>Resetting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                              />
-                            </svg>
-                            <span>Reset Password</span>
-                          </>
-                        )}
+                        View Report
                       </button>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Info Box */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-start space-x-3">
-            <div className="text-blue-600 text-xl">ℹ️</div>
-            <div>
-              <p className="text-sm text-blue-800 font-medium">
-                Admin Permissions
-              </p>
-              <p className="text-xs text-blue-600 mt-1">
-                • You can delete staff members only (doctors, researchers,
-                consultants)
-                <br />
-                • Password reset for couples sets their password to their email
-                address
-                <br />
-                • Password reset for staff generates a random temporary password
-                <br />• Couple accounts cannot be deleted from the admin panel
-              </p>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
+
+      {/* Modal Popup */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            onClick={closeModal}
+          ></div>
+
+          {/* Modal Content */}
+          <div className="relative min-h-screen flex items-center justify-center p-0 sm:p-4">
+            <div className="relative bg-white sm:rounded-xl shadow-xl max-w-4xl w-full h-screen sm:h-auto sm:max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                  Couple Genetic Report
+                </h2>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  &times;
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-4 sm:p-6">
+                {modalLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading couple data...</p>
+                  </div>
+                ) : selectedCouple ? (
+                  <>
+                    {/* Couple Information */}
+                    <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                      <h3 className="font-semibold text-gray-700 mb-2">
+                        Couple Information
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-gray-500">Email:</span>{" "}
+                          {selectedCouple.email}
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Registered:</span>{" "}
+                          {new Date(
+                            selectedCouple.registeredAt,
+                          ).toLocaleDateString()}
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Risk Level:</span>{" "}
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-bold ${getRiskColor(selectedCouple.riskLevel)}`}
+                          >
+                            {selectedCouple.riskLevel}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Probability:</span>{" "}
+                          {selectedCouple.probability}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Husband & Wife Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Husband Card */}
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="bg-blue-50 px-4 py-3 border-b">
+                          <h3 className="font-semibold text-blue-800">
+                            {" "}
+                            Husband
+                          </h3>
+                        </div>
+                        <div className="p-4 space-y-2 text-sm">
+                          {selectedCouple.husband ? (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Full Name:
+                                </span>{" "}
+                                <span className="font-medium">
+                                  {selectedCouple.husband.fullName}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Date of Birth:
+                                </span>{" "}
+                                {selectedCouple.husband.dateOfBirth
+                                  ? new Date(
+                                      selectedCouple.husband.dateOfBirth,
+                                    ).toLocaleDateString()
+                                  : "N/A"}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Blood Type:
+                                </span>{" "}
+                                {selectedCouple.husband.bloodType || "N/A"}{" "}
+                                {selectedCouple.husband.rhFactor
+                                  ? `(${selectedCouple.husband.rhFactor})`
+                                  : ""}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Genotype:</span>
+                                <span
+                                  className={`font-bold px-2 py-0.5 rounded-full text-xs ${
+                                    selectedCouple.husband.genotype === "SS"
+                                      ? "bg-red-100 text-red-700"
+                                      : selectedCouple.husband.genotype === "AS"
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-green-100 text-green-700"
+                                  }`}
+                                >
+                                  {selectedCouple.husband.genotype || "N/A"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Region:</span>{" "}
+                                {selectedCouple.husband.region || "N/A"}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Family History:
+                                </span>{" "}
+                                {selectedCouple.husband.familyHistory || "None"}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Affected Child:
+                                </span>{" "}
+                                {selectedCouple.husband.hasAffectedChild
+                                  ? "Yes"
+                                  : "No"}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-gray-500">No data available</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Wife Card */}
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="bg-pink-50 px-4 py-3 border-b">
+                          <h3 className="font-semibold text-pink-800"> Wife</h3>
+                        </div>
+                        <div className="p-4 space-y-2 text-sm">
+                          {selectedCouple.wife ? (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Full Name:
+                                </span>{" "}
+                                <span className="font-medium">
+                                  {selectedCouple.wife.fullName}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Date of Birth:
+                                </span>{" "}
+                                {selectedCouple.wife.dateOfBirth
+                                  ? new Date(
+                                      selectedCouple.wife.dateOfBirth,
+                                    ).toLocaleDateString()
+                                  : "N/A"}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Blood Type:
+                                </span>{" "}
+                                {selectedCouple.wife.bloodType || "N/A"}{" "}
+                                {selectedCouple.wife.rhFactor
+                                  ? `(${selectedCouple.wife.rhFactor})`
+                                  : ""}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Genotype:</span>
+                                <span
+                                  className={`font-bold px-2 py-0.5 rounded-full text-xs ${
+                                    selectedCouple.wife.genotype === "SS"
+                                      ? "bg-red-100 text-red-700"
+                                      : selectedCouple.wife.genotype === "AS"
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-green-100 text-green-700"
+                                  }`}
+                                >
+                                  {selectedCouple.wife.genotype || "N/A"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Region:</span>{" "}
+                                {selectedCouple.wife.region || "N/A"}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Family History:
+                                </span>{" "}
+                                {selectedCouple.wife.familyHistory || "None"}
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">
+                                  Affected Child:
+                                </span>{" "}
+                                {selectedCouple.wife.hasAffectedChild
+                                  ? "Yes"
+                                  : "No"}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-gray-500">No data available</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Assessment Recommendation */}
+                    <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                      <h3 className="font-semibold text-yellow-800 mb-2">
+                        📋 Medical Recommendation
+                      </h3>
+                      <p className="text-gray-700">
+                        {selectedCouple.recommendation ||
+                          "No recommendation available"}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Assessment Date:{" "}
+                        {selectedCouple.assessmentDate
+                          ? new Date(
+                              selectedCouple.assessmentDate,
+                            ).toLocaleDateString()
+                          : "N/A"}
+                      </p>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-end">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export default SystemAdmin;
+export default MedicalConsultant;
