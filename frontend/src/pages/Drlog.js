@@ -109,7 +109,9 @@ function Drlog() {
         localStorage.setItem("doctorRole", response.data.role);
         localStorage.setItem("doctorName", response.data.name);
 
-        const role = response.data.role;
+        const role = response.data.role.toLowerCase(); // normalize just in case
+
+        console.log("Role received:", role); // ← add this
 
         if (role === "admin") {
           navigate("/dashboard/admin");
@@ -118,6 +120,7 @@ function Drlog() {
         } else if (role === "researcher") {
           navigate("/dashboard/researcher");
         } else {
+          console.log("Hit else branch — unrecognized role:", role);
           setError("Unrecognized role. Please contact the administrator.");
         }
       }
