@@ -15,6 +15,7 @@ const injectStyles = `
   @keyframes cf-fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes cf-pulse-dot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.4; transform:scale(.6); } }
   @keyframes cf-bar-grow { from { width: 0; } }
+  @keyframes cf-modalIn { from { opacity:0; transform:scale(0.95) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
   .cf-fade-up { animation: cf-fadeUp 0.5s ease both; }
   .cf-pulse   { animation: cf-pulse-dot 2.2s infinite; }
   .cf-page { max-width: 960px; margin: 0 auto; padding: 48px 20px 80px; }
@@ -80,6 +81,50 @@ const injectStyles = `
   .cf-loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 16px; }
   .cf-big-spinner { width: 48px; height: 48px; border: 4px solid #f0e8e8; border-top-color: #b91c1c;
     border-radius: 50%; animation: cf-spin 0.8s linear infinite; }
+
+  /* Chatbot pre-form banner */
+  .cf-chatbot-banner { display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%);
+    border: 1px solid #fca5a5; border-radius: 14px; padding: 16px 22px; margin-bottom: 28px;
+    flex-wrap: wrap; gap: 12px; }
+  .cf-chatbot-banner-left { display: flex; align-items: center; gap: 12px; }
+  .cf-chatbot-banner-icon { width: 38px; height: 38px; background: #7f1d1d; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+
+  /* PDF download button */
+  .cf-pdf-btn { display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; color: #7f1d1d; text-decoration: none;
+    padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    border: 2px solid #b91c1c; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(127,29,29,0.1); transition: all 0.2s; margin-top: 12px; }
+  .cf-pdf-btn:hover { background: #7f1d1d; color: #fff; transform: translateY(-1px); }
+
+  /* Dr. Saab contact box */
+  .cf-doctor-box { background: #f0fdf4; border: 1px solid #86efac; border-left: 4px solid #16a34a;
+    border-radius: 12px; padding: 20px 24px; margin-top: 24px; }
+  .cf-doctor-email-btn { display: inline-flex; align-items: center; gap: 8px;
+    background: #16a34a; color: #fff; border: none; cursor: pointer;
+    padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 12px rgba(22,163,74,0.3); transition: all 0.2s; margin-top: 14px; }
+  .cf-doctor-email-btn:hover { background: #15803d; transform: translateY(-1px); }
+
+  /* Consent Modal */
+  .cf-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .cf-modal { background: #fff; border-radius: 20px; max-width: 480px; width: 100%;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.2); animation: cf-modalIn 0.3s ease both; overflow: hidden; }
+  .cf-modal-header { background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); padding: 22px 28px; }
+  .cf-modal-body { padding: 28px; }
+  .cf-modal-actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .cf-modal-accept { flex: 1; background: #7f1d1d; color: #fff; border: none; border-radius: 10px;
+    padding: 13px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+    cursor: pointer; transition: background 0.2s; min-width: 140px; }
+  .cf-modal-accept:hover { background: #991b1b; }
+  .cf-modal-decline { flex: 1; background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb;
+    border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 600;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; min-width: 140px; }
+  .cf-modal-decline:hover { background: #f3f4f6; color: #374151; }
 `;
 
 // ── Helpers (outside component so they never get recreated) ──
@@ -115,9 +160,259 @@ const SelectWrap = ({ children }) => (
 );
 
 // ── ResultCard moved outside — fixes focus-loss bug ──
-const ResultCard = ({ assessmentData, husband, wife, t }) => {
+const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
   const { riskLevel, recommendation } = translateMLResult(assessmentData, t);
   const color = getRiskColor(assessmentData.riskLevel);
+
+  // ── Build pre-written email to Dr. Leila Saab ──
+  const buildDrEmail = () => {
+    const subject = encodeURIComponent(
+      t("form.dr_email_subject", {
+        defaultValue: "Genetic Assessment Consultation Request",
+      }),
+    );
+    const husbandName = husband?.fullName || "N/A";
+    const wifeName = wife?.fullName || "N/A";
+    const body = encodeURIComponent(
+      t("form.dr_email_body", {
+        defaultValue: `Dear Dr. Leila Saab,\n\nWe are reaching out following the completion of our genetic risk assessment on the LebanonGen platform.\n\nOur assessment result: ${assessmentData.riskLevel || "N/A"}\nRisk probability: ${assessmentData.probability || "N/A"}%\nRecommendation: ${assessmentData.recommendation || "N/A"}\n\nHusband: ${husbandName}\nWife: ${wifeName}\n\nWe would appreciate the opportunity to consult with you regarding our results and the available options for our family planning.\n\nThank you for your time and expertise.\n\nKind regards,\n${husbandName} & ${wifeName}`,
+        riskLevel: assessmentData.riskLevel || "N/A",
+        probability: assessmentData.probability || "N/A",
+        recommendation: assessmentData.recommendation || "N/A",
+        husbandName,
+        wifeName,
+      }),
+    );
+    return `mailto:leila.saab@lebanongen.com?subject=${subject}&body=${body}`;
+  };
+
+  // ── Generate PDF client-side ──
+  const handleDownloadPDF = () => {
+    // Dynamically import jsPDF to keep bundle clean
+    import("jspdf")
+      .then(({ jsPDF }) => {
+        const lang = i18n.language || "en";
+        const isRTL = lang === "ar";
+        const doc = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+
+        const pageW = 210;
+        const pageH = 297;
+        const margin = 20;
+        const contentW = pageW - margin * 2;
+        let y = margin;
+
+        // ── Helpers ──
+        const setFont = (style = "normal", size = 11) => {
+          doc.setFont("helvetica", style);
+          doc.setFontSize(size);
+        };
+        const drawRect = (x, yy, w, h, fillColor, strokeColor) => {
+          if (fillColor) {
+            doc.setFillColor(...fillColor);
+          }
+          if (strokeColor) {
+            doc.setDrawColor(...strokeColor);
+          } else {
+            doc.setDrawColor(255, 255, 255);
+          }
+          doc.roundedRect(
+            x,
+            yy,
+            w,
+            h,
+            3,
+            3,
+            fillColor ? (strokeColor ? "FD" : "F") : "S",
+          );
+        };
+        const addText = (text, x, yy, opts = {}) => {
+          setFont(opts.style || "normal", opts.size || 11);
+          doc.setTextColor(...(opts.color || [31, 41, 55]));
+          if (opts.align) {
+            doc.text(String(text), x, yy, { align: opts.align });
+          } else {
+            doc.text(String(text), x, yy);
+          }
+        };
+        const wrapText = (text, x, yy, maxW, lineH = 6, opts = {}) => {
+          setFont(opts.style || "normal", opts.size || 10);
+          doc.setTextColor(...(opts.color || [55, 65, 81]));
+          const lines = doc.splitTextToSize(String(text), maxW);
+          doc.text(lines, x, yy);
+          return yy + lines.length * lineH;
+        };
+        const checkPage = (needed = 20) => {
+          if (y + needed > pageH - margin) {
+            doc.addPage();
+            y = margin;
+          }
+        };
+
+        // ── Header banner ──
+        drawRect(0, 0, pageW, 42, [127, 29, 29]);
+        setFont("bold", 22);
+        doc.setTextColor(255, 255, 255);
+        doc.text("LebanonGen", margin, 18);
+        setFont("normal", 10);
+        doc.setTextColor(252, 202, 202);
+        doc.text(
+          t("form.pdf_subtitle", {
+            defaultValue: "Genetic Risk Assessment Report",
+          }),
+          margin,
+          27,
+        );
+        const dateStr = new Date().toLocaleDateString(
+          lang === "ar" ? "ar-LB" : lang === "fr" ? "fr-FR" : "en-GB",
+          {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          },
+        );
+        doc.text(dateStr, pageW - margin, 27, { align: "right" });
+        y = 54;
+
+        // ── Risk result box ──
+        const riskColorRGB = color.startsWith("#")
+          ? [
+              parseInt(color.slice(1, 3), 16),
+              parseInt(color.slice(3, 5), 16),
+              parseInt(color.slice(5, 7), 16),
+            ]
+          : [127, 29, 29];
+        drawRect(margin, y, contentW, 28, [...riskColorRGB]);
+        setFont("bold", 14);
+        doc.setTextColor(255, 255, 255);
+        doc.text(
+          `${getRiskIcon(assessmentData.riskLevel)}  ${riskLevel}`,
+          margin + 8,
+          y + 11,
+        );
+        setFont("normal", 10);
+        doc.text(
+          `${t("form.risk_probability", { defaultValue: "Risk Probability" })}: ${assessmentData.probability || "N/A"}%`,
+          margin + 8,
+          y + 21,
+        );
+        y += 36;
+
+        // ── Recommendation ──
+        checkPage(30);
+        drawRect(margin, y, contentW, 8, [240, 232, 232]);
+        setFont("bold", 11);
+        doc.setTextColor(127, 29, 29);
+        doc.text(
+          t("form.recommendation_label", { defaultValue: "Recommendation" }),
+          margin + 6,
+          y + 5.5,
+        );
+        y += 12;
+        drawRect(margin, y, contentW, 2, [253, 242, 242]);
+        y = wrapText(recommendation, margin + 6, y + 6, contentW - 12, 6, {
+          size: 10,
+          color: [55, 65, 81],
+        });
+        y += 8;
+
+        // ── Couple info ──
+        checkPage(50);
+        drawRect(margin, y, contentW, 8, [240, 232, 232]);
+        setFont("bold", 11);
+        doc.setTextColor(127, 29, 29);
+        doc.text(
+          t("form.section_personal", { defaultValue: "Personal Information" }),
+          margin + 6,
+          y + 5.5,
+        );
+        y += 12;
+
+        const infoRows = [
+          [
+            t("form.husband", { defaultValue: "Husband" }),
+            husband?.fullName || "—",
+          ],
+          [t("form.wife", { defaultValue: "Wife" }), wife?.fullName || "—"],
+          [
+            `${t("form.husband", { defaultValue: "Husband" })} ${t("form.genotype", { defaultValue: "Genotype" })}`,
+            (husband?.genotype || "—").toUpperCase(),
+          ],
+          [
+            `${t("form.wife", { defaultValue: "Wife" })} ${t("form.genotype", { defaultValue: "Genotype" })}`,
+            (wife?.genotype || "—").toUpperCase(),
+          ],
+        ];
+
+        infoRows.forEach(([label, value], idx) => {
+          const rowBg = idx % 2 === 0 ? [249, 250, 251] : [255, 255, 255];
+          drawRect(margin, y, contentW, 9, rowBg, [229, 231, 235]);
+          setFont("normal", 10);
+          doc.setTextColor(107, 114, 128);
+          doc.text(label, margin + 5, y + 6);
+          setFont("bold", 10);
+          doc.setTextColor(17, 24, 39);
+          doc.text(String(value), margin + contentW / 2, y + 6);
+          y += 9;
+        });
+        y += 8;
+
+        // ── Disclaimer ──
+        checkPage(24);
+        drawRect(margin, y, contentW, 20, [255, 251, 235], [252, 211, 77]);
+        setFont("normal", 9);
+        doc.setTextColor(146, 64, 14);
+        const disclaimerText = t("form.disclaimer", {
+          defaultValue:
+            "⚕️ This result is for informational purposes only. Please consult a licensed genetic counselor.",
+        });
+        const disclaimerLines = doc.splitTextToSize(
+          disclaimerText.replace("⚕️ ", "⚕ "),
+          contentW - 12,
+        );
+        doc.text(disclaimerLines, margin + 6, y + 6);
+        y += 24;
+
+        // ── Dr. Leila Saab contact ──
+        checkPage(24);
+        drawRect(margin, y, contentW, 20, [240, 253, 244], [134, 239, 172]);
+        setFont("bold", 10);
+        doc.setTextColor(22, 101, 52);
+        doc.text(
+          t("form.dr_consult_title", { defaultValue: "Consult a Specialist" }),
+          margin + 6,
+          y + 7,
+        );
+        setFont("normal", 9);
+        doc.setTextColor(21, 128, 61);
+        doc.text(
+          "Dr. Leila Saab  —  leila.saab@lebanongen.com",
+          margin + 6,
+          y + 14,
+        );
+        y += 24;
+
+        // ── Footer ──
+        setFont("normal", 8);
+        doc.setTextColor(209, 213, 219);
+        doc.text(
+          "LebanonGen  ·  Beirut, Lebanon  ·  www.lebaongen.com",
+          pageW / 2,
+          pageH - 10,
+          { align: "center" },
+        );
+
+        doc.save(`LebanonGen_Assessment_${Date.now()}.pdf`);
+      })
+      .catch(() => {
+        alert(
+          "PDF generation failed. Please make sure jsPDF is installed: npm install jspdf",
+        );
+      });
+  };
 
   return (
     <div id="result-card" className="cf-result">
@@ -276,6 +571,7 @@ const ResultCard = ({ assessmentData, husband, wife, t }) => {
             })}
           </p>
         )}
+
         <p
           style={{
             margin: "8px 0 24px",
@@ -287,15 +583,147 @@ const ResultCard = ({ assessmentData, husband, wife, t }) => {
         >
           {t("form.disclaimer")}
         </p>
-        <div style={{ textAlign: "center" }}>
+
+        {/* Action buttons row */}
+        <div
+          style={{
+            textAlign: "center",
+            display: "flex",
+            gap: 12,
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
           <Link to="/chatbot" className="cf-chat-link">
             <span>💬</span> {t("form.chat_link")}
           </Link>
+          <button className="cf-pdf-btn" onClick={handleDownloadPDF}>
+            <span>📄</span>{" "}
+            {t("form.download_pdf", { defaultValue: "Download PDF Report" })}
+          </button>
+        </div>
+
+        {/* Dr. Leila Saab contact box */}
+        <div className="cf-doctor-box">
+          <p
+            style={{
+              margin: "0 0 4px",
+              fontSize: 11,
+              color: "#15803d",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {t("form.dr_consult_title", {
+              defaultValue: "Speak with a Specialist",
+            })}
+          </p>
+          <p
+            style={{
+              margin: "0 0 2px",
+              fontSize: 15,
+              color: "#14532d",
+              fontWeight: 700,
+            }}
+          >
+            Dr. Leila Saab
+          </p>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 13,
+              color: "#166534",
+              lineHeight: 1.6,
+            }}
+          >
+            {t("form.dr_consult_body", {
+              defaultValue:
+                "Based on your assessment results, we recommend scheduling a consultation with Dr. Leila Saab, our medical genetic consultant. She can guide you through your options and answer any questions you may have.",
+            })}
+          </p>
+          <a href={buildDrEmail()} className="cf-doctor-email-btn">
+            <span>✉️</span>{" "}
+            {t("form.dr_email_btn", { defaultValue: "Email Dr. Leila Saab" })}
+          </a>
         </div>
       </div>
     </div>
   );
 };
+
+// ── Consent Modal ──
+const ConsentModal = ({ onAccept, onDecline, t }) => (
+  <div className="cf-modal-overlay">
+    <div className="cf-modal">
+      <div className="cf-modal-header">
+        <p
+          style={{
+            margin: 0,
+            fontSize: 10,
+            color: "rgba(255,255,255,0.7)",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            marginBottom: 6,
+          }}
+        >
+          {t("form.consent_badge", { defaultValue: "Data Privacy" })}
+        </p>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 20,
+            fontWeight: 700,
+            color: "#fff",
+            fontFamily: "'Cormorant Garamond', serif",
+          }}
+        >
+          {t("form.consent_title", { defaultValue: "Contribute to Research?" })}
+        </h2>
+      </div>
+      <div className="cf-modal-body">
+        <p
+          style={{
+            margin: "0 0 14px",
+            fontSize: 14,
+            color: "#374151",
+            lineHeight: 1.7,
+          }}
+        >
+          {t("form.consent_body", {
+            defaultValue:
+              "Would you like to allow LebanonGen to use your anonymised, aggregated genetic data to improve the regional health map and support research into Sickle Cell Disease in Lebanon?",
+          })}
+        </p>
+        <div
+          style={{
+            background: "#f0fdf4",
+            border: "1px solid #86efac",
+            borderRadius: 10,
+            padding: "12px 16px",
+            fontSize: 13,
+            color: "#166534",
+            lineHeight: 1.6,
+          }}
+        >
+          🔒{" "}
+          {t("form.consent_privacy", {
+            defaultValue:
+              "No personal information (names, dates of birth, or contact details) is ever displayed or shared. Only anonymous statistical counts per region are used.",
+          })}
+        </div>
+        <div className="cf-modal-actions">
+          <button className="cf-modal-accept" onClick={onAccept}>
+            ✓ {t("form.consent_accept", { defaultValue: "Yes, I Consent" })}
+          </button>
+          <button className="cf-modal-decline" onClick={onDecline}>
+            {t("form.consent_decline", { defaultValue: "No Thanks" })}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 // ── Region data (outside component — static, no need to recreate) ──
 const regionKeys = [
@@ -313,7 +741,7 @@ const regionValues = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 function CoupleForm() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (localStorage.getItem("isLoggedIn") !== "true") navigate("/login");
@@ -343,6 +771,8 @@ function CoupleForm() {
   const [existingData, setExistingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   useEffect(() => {
     if (!coupleID) {
@@ -359,6 +789,7 @@ function CoupleForm() {
       .finally(() => setChecking(false));
   }, [coupleID]);
 
+  // ── Fixed handleChange: uses functional updater to avoid stale closure ──
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -377,6 +808,14 @@ function CoupleForm() {
       alert(t("form.session_expired"));
       return;
     }
+    // Show consent modal before submitting
+    setShowConsentModal(true);
+    setPendingSubmit(true);
+  };
+
+  const doSubmit = async (dataConsent) => {
+    setShowConsentModal(false);
+    setPendingSubmit(false);
 
     const persons = [
       {
@@ -391,6 +830,7 @@ function CoupleForm() {
         genotype: formData.husbandgenotype,
         familyHistory: parseInt(formData.HusbandfamilyHistory, 10),
         hasAffectedChild: parseInt(formData.affected, 10),
+        dataConsent,
       },
       {
         coupleID,
@@ -404,6 +844,7 @@ function CoupleForm() {
         genotype: formData.wifegenotype,
         familyHistory: parseInt(formData.WifefamilyHistory, 10),
         hasAffectedChild: parseInt(formData.affected, 10),
+        dataConsent,
       },
     ];
 
@@ -526,6 +967,7 @@ function CoupleForm() {
               husband={existingData.husband}
               wife={existingData.wife}
               t={t}
+              i18n={i18n}
             />
           </div>
           <Footer />
@@ -537,6 +979,16 @@ function CoupleForm() {
   return (
     <>
       <style>{injectStyles}</style>
+
+      {/* Consent Modal */}
+      {showConsentModal && pendingSubmit && (
+        <ConsentModal
+          t={t}
+          onAccept={() => doSubmit(true)}
+          onDecline={() => doSubmit(false)}
+        />
+      )}
+
       <div className="cf-body">
         <div className="cf-page">
           {/* Page header */}
@@ -576,6 +1028,47 @@ function CoupleForm() {
             >
               {t("form.subtitle")}
             </p>
+          </div>
+
+          {/* ── Chatbot banner (before the test) ── */}
+          <div className="cf-chatbot-banner cf-fade-up">
+            <div className="cf-chatbot-banner-left">
+              <div className="cf-chatbot-banner-icon">💬</div>
+              <div>
+                <p
+                  style={{
+                    margin: "0 0 2px",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#7f1d1d",
+                  }}
+                >
+                  {t("form.chatbot_banner_title", {
+                    defaultValue: "Have questions before the test?",
+                  })}
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 13,
+                    color: "#9ca3af",
+                    fontWeight: 300,
+                  }}
+                >
+                  {t("form.chatbot_banner_body", {
+                    defaultValue:
+                      "Our AI Genetic Counselor can explain what the form fields mean and help you prepare.",
+                  })}
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/chatbot"
+              className="cf-chat-link"
+              style={{ flexShrink: 0 }}
+            >
+              <span>💬</span> {t("form.chat_link")}
+            </Link>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -901,6 +1394,7 @@ function CoupleForm() {
                       <SelectWrap>
                         <select
                           name="affected"
+                          value={formData.affected}
                           onChange={handleChange}
                           className="cf-select"
                         >
@@ -942,6 +1436,7 @@ function CoupleForm() {
                 husband={existingData.husband}
                 wife={existingData.wife}
                 t={t}
+                i18n={i18n}
               />
             </div>
           )}

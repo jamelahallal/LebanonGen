@@ -213,24 +213,46 @@ function ChatBot() {
       try {
         const parsed = JSON.parse(savedAssessment);
         setContextData(parsed);
+        // Welcome message with loaded result — translated
         setMessages([
           {
             sender: "bot",
-            text: `Hello! I have loaded your diagnostic information into my context workspace. I can see your estimated result was **${parsed.riskLevel || "Analyzed"}**. How can I assist you with your report or family compatibility planning questions today?`,
+            text: t("chatbot.welcome_with_result", {
+              defaultValue:
+                "Hello! I have loaded your diagnostic information into my context workspace. I can see your estimated result was **{{riskLevel}}**. How can I assist you with your report or family compatibility planning questions today?",
+              riskLevel:
+                parsed.riskLevel ||
+                t("chatbot.analyzed", { defaultValue: "Analyzed" }),
+            }),
           },
         ]);
       } catch (e) {
         console.error("Context mapping crash", e);
+        setMessages([
+          {
+            sender: "bot",
+            text: t("chatbot.welcome_default", {
+              defaultValue:
+                "Hello! I am your AI Genetic Assistant. Feel free to ask me anything about blood markers, inheritance configurations, or global metrics concerning Sickle Cell Disease.",
+            }),
+          },
+        ]);
       }
     } else {
+      // Generic welcome message — translated
       setMessages([
         {
           sender: "bot",
-          text: "Hello! I am your AI Genetic Assistant. Feel free to ask me anything about blood markers, inheritance configurations, or global metrics concerning Sickle Cell Disease.",
+          text: t("chatbot.welcome_default", {
+            defaultValue:
+              "Hello! I am your AI Genetic Assistant. Feel free to ask me anything about blood markers, inheritance configurations, or global metrics concerning Sickle Cell Disease.",
+          }),
         },
       ]);
     }
-  }, []);
+    // Re-run when language changes so the welcome message updates immediately
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i18n.language]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -246,13 +268,13 @@ function ChatBot() {
     setIsTyping(true);
 
     try {
-      const coupleID = localStorage.getItem("coupleID"); 
+      const coupleID = localStorage.getItem("coupleID");
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/ai/chat`,
         {
-          message: userMessage, 
-          coupleID: coupleID, 
+          message: userMessage,
+          coupleID: coupleID,
         },
       );
 
@@ -265,7 +287,10 @@ function ChatBot() {
         ...prev,
         {
           sender: "bot",
-          text: "I experienced a system processing timeout. Please submit your prompt again.",
+          text: t("chatbot.error", {
+            defaultValue:
+              "I experienced a system processing timeout. Please submit your prompt again.",
+          }),
         },
       ]);
     } finally {
@@ -313,8 +338,10 @@ function ChatBot() {
                   <strong>
                     {t("form.badge") || "Genetic Risk Assessment"}:
                   </strong>{" "}
-                  Ready. Your calculated profile parameters have been structured
-                  securely inside this chat interface.
+                  {t("chatbot.context_loaded", {
+                    defaultValue:
+                      "Ready. Your calculated profile parameters have been structured securely inside this chat interface.",
+                  })}
                 </span>
               </div>
             )}

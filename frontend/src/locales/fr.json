@@ -234,14 +234,34 @@
       "akkar": "Akkar",
       "baalbek": "Baalbek-Hermel",
       "keserwan": "Kesrouan-Jbeil"
-    }
+    },
+    "chatbot_banner_title": "Vous avez des questions avant le test ?",
+    "chatbot_banner_body": "Notre conseiller génétique IA peut expliquer la signification des champs du formulaire et vous aider à vous préparer.",
+    "download_pdf": "Télécharger le rapport PDF",
+    "pdf_subtitle": "Rapport d'évaluation du risque génétique",
+    "dr_consult_title": "Parlez à un spécialiste",
+    "dr_consult_body": "Sur la base de vos résultats, nous recommandons de prendre rendez-vous avec le Dr Leila Saab, notre consultante médicale en génétique. Elle peut vous guider à travers vos options et répondre à toutes vos questions.",
+    "dr_email_btn": "Écrire au Dr Leila Saab",
+    "dr_email_subject": "Demande de consultation génétique",
+    "dr_email_body": "Chère Docteure Leila Saab,\n\nNous vous contactons suite à la complétion de notre évaluation du risque génétique sur la plateforme LebanonGen.\n\nRésultat de notre évaluation : {{riskLevel}}\nProbabilité de risque : {{probability}}%\nRecommandation : {{recommendation}}\n\nMari : {{husbandName}}\nFemme : {{wifeName}}\n\nNous souhaiterions avoir l'opportunité de vous consulter concernant nos résultats et les options disponibles pour notre planification familiale.\n\nMerci pour votre temps et votre expertise.\n\nCordialement,\n{{husbandName}} & {{wifeName}}",
+    "consent_badge": "Confidentialité des données",
+    "consent_title": "Contribuer à la recherche ?",
+    "consent_body": "Souhaitez-vous autoriser LebanonGen à utiliser vos données génétiques anonymisées et agrégées pour améliorer la carte régionale de santé et soutenir la recherche sur la drépanocytose au Liban ?",
+    "consent_privacy": "Aucune information personnelle (noms, dates de naissance ou coordonnées) n'est jamais affichée ou partagée. Seuls des chiffres statistiques anonymes par région sont utilisés.",
+    "consent_accept": "Oui, je consens",
+    "consent_decline": "Non merci"
   },
   "chatbot": {
     "title": "Conseiller génétique IA",
     "subtitle": "Posez toute question sur vos résultats ou la drépanocytose.",
     "placeholder": "Tapez votre question ici…",
     "send": "Envoyer",
-    "thinking": "Réflexion en cours…"
+    "thinking": "Réflexion en cours…",
+    "welcome_with_result": "Bonjour ! J'ai chargé vos informations diagnostiques dans mon espace de travail. Je vois que votre résultat estimé était **{{riskLevel}}**. Comment puis-je vous aider avec votre rapport ou vos questions sur la planification familiale aujourd'hui ?",
+    "welcome_default": "Bonjour ! Je suis votre assistant génétique IA. N'hésitez pas à me poser des questions sur les marqueurs sanguins, les configurations d'héritage ou les données mondiales concernant la drépanocytose.",
+    "analyzed": "Analysé",
+    "context_loaded": "Prêt. Vos paramètres de profil calculés ont été organisés de manière sécurisée dans cette interface de chat.",
+    "error": "J'ai rencontré un délai d'attente. Veuillez soumettre votre question à nouveau."
   },
   "drlog": {
     "title": "Portail du personnel",

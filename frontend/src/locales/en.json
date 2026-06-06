@@ -234,14 +234,34 @@
       "akkar": "Akkar",
       "baalbek": "Baalbek-Hermel",
       "keserwan": "Keserwan-Jbeil"
-    }
+    },
+    "chatbot_banner_title": "Have questions before the test?",
+    "chatbot_banner_body": "Our AI Genetic Counselor can explain what the form fields mean and help you prepare.",
+    "download_pdf": "Download PDF Report",
+    "pdf_subtitle": "Genetic Risk Assessment Report",
+    "dr_consult_title": "Speak with a Specialist",
+    "dr_consult_body": "Based on your assessment results, we recommend scheduling a consultation with Dr. Leila Saab, our medical genetic consultant. She can guide you through your options and answer any questions you may have.",
+    "dr_email_btn": "Email Dr. Leila Saab",
+    "dr_email_subject": "Genetic Assessment Consultation Request",
+    "dr_email_body": "Dear Dr. Leila Saab,\n\nWe are reaching out following the completion of our genetic risk assessment on the LebanonGen platform.\n\nOur assessment result: {{riskLevel}}\nRisk probability: {{probability}}%\nRecommendation: {{recommendation}}\n\nHusband: {{husbandName}}\nWife: {{wifeName}}\n\nWe would appreciate the opportunity to consult with you regarding our results and the available options for our family planning.\n\nThank you for your time and expertise.\n\nKind regards,\n{{husbandName}} & {{wifeName}}",
+    "consent_badge": "Data Privacy",
+    "consent_title": "Contribute to Research?",
+    "consent_body": "Would you like to allow LebanonGen to use your anonymised, aggregated genetic data to improve the regional health map and support research into Sickle Cell Disease in Lebanon?",
+    "consent_privacy": "No personal information (names, dates of birth, or contact details) is ever displayed or shared. Only anonymous statistical counts per region are used.",
+    "consent_accept": "Yes, I Consent",
+    "consent_decline": "No Thanks"
   },
   "chatbot": {
     "title": "AI Genetic Counselor",
     "subtitle": "Ask any question about your results or sickle cell disease.",
     "placeholder": "Type your question here…",
     "send": "Send",
-    "thinking": "Thinking…"
+    "thinking": "Thinking…",
+    "welcome_with_result": "Hello! I have loaded your diagnostic information into my context workspace. I can see your estimated result was **{{riskLevel}}**. How can I assist you with your report or family compatibility planning questions today?",
+    "welcome_default": "Hello! I am your AI Genetic Assistant. Feel free to ask me anything about blood markers, inheritance configurations, or global metrics concerning Sickle Cell Disease.",
+    "analyzed": "Analyzed",
+    "context_loaded": "Ready. Your calculated profile parameters have been structured securely inside this chat interface.",
+    "error": "I experienced a system processing timeout. Please submit your prompt again."
   },
   "drlog": {
     "title": "Staff Portal",
