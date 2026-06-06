@@ -82,17 +82,48 @@ const injectStyles = `
     border-radius: 50%; animation: cf-spin 0.8s linear infinite; }
 `;
 
-const ResultCard = ({ assessmentData, husband, wife }) => {
+// ── Helpers (outside component so they never get recreated) ──
+const getRiskColor = (riskLevel) => {
+  if (!riskLevel) return "#888";
+  const l = riskLevel.toLowerCase();
+  if (l.includes("critical")) return "#7b0000";
+  if (l.includes("very high")) return "#b30000";
+  if (l.includes("high")) return "#d94f00";
+  if (l.includes("moderate") || l.includes("carrier")) return "#e08c00";
+  return "#2e7d32";
+};
+
+const getRiskIcon = (riskLevel) => {
+  if (!riskLevel) return "🧬";
+  const l = riskLevel.toLowerCase();
+  if (l.includes("critical") || l.includes("very high")) return "🔴";
+  if (l.includes("high")) return "🟠";
+  if (l.includes("moderate") || l.includes("carrier")) return "🟡";
+  return "🟢";
+};
+
+// ── Field & SelectWrap moved outside — fixes focus-loss bug ──
+const Field = ({ label, children }) => (
+  <div>
+    <label className="cf-label">{label}</label>
+    {children}
+  </div>
+);
+
+const SelectWrap = ({ children }) => (
+  <div className="cf-select-wrap">{children}</div>
+);
+
+// ── ResultCard moved outside — fixes focus-loss bug ──
+const ResultCard = ({ assessmentData, husband, wife, t }) => {
   const { riskLevel, recommendation } = translateMLResult(assessmentData, t);
-  const color = getRiskColor(assessmentData.riskLevel); // color still based on English key for consistency
+  const color = getRiskColor(assessmentData.riskLevel);
 
   return (
     <div id="result-card" className="cf-result">
       <div
         className="cf-result-header"
-        style={{
-          background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-        }}
+        style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
       >
         <span style={{ fontSize: 32 }}>
           {getRiskIcon(assessmentData.riskLevel)}
@@ -112,14 +143,8 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
           </p>
           <h3
             className="cf-display"
-            style={{
-              margin: 0,
-              fontSize: 26,
-              fontWeight: 700,
-              color: "#fff",
-            }}
+            style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#fff" }}
           >
-            {/* ✅ ML result translated here */}
             {riskLevel}
           </h3>
         </div>
@@ -161,7 +186,7 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
           </div>
         </div>
 
-        {/* Recommendation — translated */}
+        {/* Recommendation */}
         <div
           className="cf-rec-box"
           style={{
@@ -190,7 +215,6 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
               lineHeight: 1.65,
             }}
           >
-            {/* ✅ Recommendation translated here */}
             {recommendation}
           </p>
         </div>
@@ -215,11 +239,7 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
                 {label}
               </p>
               <p
-                style={{
-                  margin: "4px 0 2px",
-                  fontSize: 13,
-                  color: "#6b7280",
-                }}
+                style={{ margin: "4px 0 2px", fontSize: 13, color: "#6b7280" }}
               >
                 {data?.fullName || "—"}
               </p>
@@ -238,7 +258,7 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
           ))}
         </div>
 
-        {/* Date + disclaimer */}
+        {/* Date */}
         {assessmentData.createdAt && (
           <p
             style={{
@@ -276,6 +296,20 @@ const ResultCard = ({ assessmentData, husband, wife }) => {
     </div>
   );
 };
+
+// ── Region data (outside component — static, no need to recreate) ──
+const regionKeys = [
+  "beirut",
+  "mount_lebanon",
+  "keserwan",
+  "north",
+  "akkar",
+  "bekaa",
+  "baalbek",
+  "south",
+  "nabatieh",
+];
+const regionValues = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 function CoupleForm() {
   const navigate = useNavigate();
@@ -324,25 +358,6 @@ function CoupleForm() {
       .catch(() => {})
       .finally(() => setChecking(false));
   }, [coupleID]);
-
-  const getRiskColor = (riskLevel) => {
-    if (!riskLevel) return "#888";
-    const l = riskLevel.toLowerCase();
-    if (l.includes("critical")) return "#7b0000";
-    if (l.includes("very high")) return "#b30000";
-    if (l.includes("high")) return "#d94f00";
-    if (l.includes("moderate") || l.includes("carrier")) return "#e08c00";
-    return "#2e7d32";
-  };
-
-  const getRiskIcon = (riskLevel) => {
-    if (!riskLevel) return "🧬";
-    const l = riskLevel.toLowerCase();
-    if (l.includes("critical") || l.includes("very high")) return "🔴";
-    if (l.includes("high")) return "🟠";
-    if (l.includes("moderate") || l.includes("carrier")) return "🟡";
-    return "🟢";
-  };
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -508,36 +523,13 @@ function CoupleForm() {
               assessmentData={existingData.assessment}
               husband={existingData.husband}
               wife={existingData.wife}
+              t={t}
             />
           </div>
           <Footer />
         </div>
       </>
     );
-
-  // ── Region options ──
-  const regionKeys = [
-    "beirut",
-    "mount_lebanon",
-    "keserwan",
-    "north",
-    "akkar",
-    "bekaa",
-    "baalbek",
-    "south",
-    "nabatieh",
-  ];
-  const regionValues = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
-  const Field = ({ label, children }) => (
-    <div>
-      <label className="cf-label">{label}</label>
-      {children}
-    </div>
-  );
-  const SelectWrap = ({ children }) => (
-    <div className="cf-select-wrap">{children}</div>
-  );
 
   // ── Main form view ──
   return (
@@ -614,7 +606,7 @@ function CoupleForm() {
                 </div>
               </div>
               <div className="cf-card-body">
-                {/* Husband column */}
+                {/* Husband */}
                 <div className="cf-person-header">
                   <div className="cf-person-dot" />
                   {t("form.husband")}
@@ -661,7 +653,7 @@ function CoupleForm() {
 
                 <div className="cf-divider" />
 
-                {/* Wife column */}
+                {/* Wife */}
                 <div className="cf-person-header">
                   <div className="cf-person-dot" />
                   {t("form.wife")}
@@ -947,6 +939,7 @@ function CoupleForm() {
                 assessmentData={existingData.assessment}
                 husband={existingData.husband}
                 wife={existingData.wife}
+                t={t}
               />
             </div>
           )}
