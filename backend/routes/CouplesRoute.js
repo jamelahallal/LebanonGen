@@ -81,7 +81,7 @@ module.exports = (db) => {
 
   // 3. SAVE DATA & CALCULATE ASSESSMENT USING ML FLASK SERVICE
   router.post("/save-couple-data", (req, res) => {
-    const { coupleId, persons } = req.body;
+    const { coupleID, persons } = req.body;
 
     if (!persons || persons.length < 2) {
       return res.status(400).json({
@@ -112,7 +112,7 @@ module.exports = (db) => {
     db.execute(
       personQuery,
       [
-        coupleId,
+        coupleID,
         husband.role,
         husband.fullName,
         husband.gender,
@@ -136,7 +136,7 @@ module.exports = (db) => {
         db.execute(
           personQuery,
           [
-            coupleId,
+            coupleID,
             wife.role,
             wife.fullName,
             wife.gender,
@@ -203,7 +203,7 @@ module.exports = (db) => {
 
                 db.execute(
                   assessmentQuery,
-                  [coupleId, probability, riskLevel, recommendation],
+                  [coupleID, probability, riskLevel, recommendation],
                   (assessErr) => {
                     if (assessErr) {
                       console.error("Assessment Save Error:", assessErr);
@@ -237,8 +237,8 @@ module.exports = (db) => {
   });
 
   // 4. GET EXISTING ASSESSMENT FOR A COUPLE (locks the form on re-login)
-  router.get("/couple-assessment/:coupleId", (req, res) => {
-    const { coupleId } = req.params;
+  router.get("/couple-assessment/:coupleID", (req, res) => {
+    const { coupleID } = req.params;
 
     const sql = `
       SELECT 
@@ -254,7 +254,7 @@ module.exports = (db) => {
       ORDER BY a.CreatedAt DESC
     `;
 
-    db.execute(sql, [coupleId], (err, results) => {
+    db.execute(sql, [coupleID], (err, results) => {
       if (err) {
         console.error("Error fetching assessment:", err);
         return res.status(500).json({ error: "Database error" });

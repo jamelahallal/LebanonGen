@@ -200,7 +200,7 @@ function CoupleForm() {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/save-couple-data`,
-        { coupleId: coupleID, persons },
+        { coupleID: coupleID, persons },
       );
       if (response.status === 200) {
         const result = response.data.assessment;

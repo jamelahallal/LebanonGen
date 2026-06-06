@@ -9,10 +9,10 @@ module.exports = (db) => {
     console.log("GROQ KEY EXISTS:", !!process.env.GROQ_API_KEY);
     console.log("GROQ KEY VALUE:", process.env.GROQ_API_KEY);
 
-    const { message, coupleId } = req.body;
+    const { message, coupleID } = req.body;
 
-    if (!message || !coupleId) {
-      console.log("Missing message or coupleId");
+    if (!message || !coupleID) {
+      console.log("Missing message or coupleID");
       return res
         .status(400)
         .json({ error: "Message and CoupleID are required" });
@@ -20,7 +20,7 @@ module.exports = (db) => {
 
     db.query(
       "SELECT Role, Genotype FROM person WHERE CoupleID = ?",
-      [coupleId],
+      [coupleID],
       async (err, rows) => {
         if (err) {
           console.error("DB Error:", err);

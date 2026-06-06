@@ -246,13 +246,13 @@ function ChatBot() {
     setIsTyping(true);
 
     try {
-      const coupleId = localStorage.getItem("coupleID"); // ← capital D, matches Login.js
+      const coupleID = localStorage.getItem("coupleID"); 
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/ai/chat`,
         {
-          message: userMessage, // ← was "prompt"
-          coupleId: coupleId, // ← was "context"
+          message: userMessage, 
+          coupleID: coupleID, 
         },
       );
 
