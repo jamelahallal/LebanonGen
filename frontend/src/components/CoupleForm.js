@@ -82,6 +82,201 @@ const injectStyles = `
     border-radius: 50%; animation: cf-spin 0.8s linear infinite; }
 `;
 
+const ResultCard = ({ assessmentData, husband, wife }) => {
+  const { riskLevel, recommendation } = translateMLResult(assessmentData, t);
+  const color = getRiskColor(assessmentData.riskLevel); // color still based on English key for consistency
+
+  return (
+    <div id="result-card" className="cf-result">
+      <div
+        className="cf-result-header"
+        style={{
+          background: `linear-gradient(135deg, ${color}, ${color}cc)`,
+        }}
+      >
+        <span style={{ fontSize: 32 }}>
+          {getRiskIcon(assessmentData.riskLevel)}
+        </span>
+        <div>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 11,
+              color: "rgba(255,255,255,0.75)",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              fontFamily: "'Inter',sans-serif",
+            }}
+          >
+            {t("form.result_label")}
+          </p>
+          <h3
+            className="cf-display"
+            style={{
+              margin: 0,
+              fontSize: 26,
+              fontWeight: 700,
+              color: "#fff",
+            }}
+          >
+            {/* ✅ ML result translated here */}
+            {riskLevel}
+          </h3>
+        </div>
+      </div>
+
+      <div className="cf-result-body">
+        {/* Probability bar */}
+        <div style={{ marginBottom: 20 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 6,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                color: "#9ca3af",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              {t("form.risk_probability")}
+            </span>
+            <span style={{ fontSize: 22, fontWeight: 800, color }}>
+              {assessmentData.probability}%
+            </span>
+          </div>
+          <div className="cf-prob-bar-track">
+            <div
+              className="cf-prob-bar-fill"
+              style={{
+                width: `${assessmentData.probability}%`,
+                background: `linear-gradient(90deg, ${color}, ${color}99)`,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Recommendation — translated */}
+        <div
+          className="cf-rec-box"
+          style={{
+            background: "#fdf5f5",
+            border: `1px solid ${color}33`,
+            borderLeft: `4px solid ${color}`,
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 6px",
+              fontSize: 11,
+              color: "#9ca3af",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {t("form.recommendation_label")}
+          </p>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 15,
+              color: "#374151",
+              lineHeight: 1.65,
+            }}
+          >
+            {/* ✅ Recommendation translated here */}
+            {recommendation}
+          </p>
+        </div>
+
+        {/* Genotype cards */}
+        <div className="cf-genotype-grid">
+          {[
+            { label: t("form.husband"), data: husband },
+            { label: t("form.wife"), data: wife },
+          ].map(({ label, data }) => (
+            <div key={label} className="cf-genotype-card">
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 10,
+                  color: "#9ca3af",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  fontWeight: 600,
+                }}
+              >
+                {label}
+              </p>
+              <p
+                style={{
+                  margin: "4px 0 2px",
+                  fontSize: 13,
+                  color: "#6b7280",
+                }}
+              >
+                {data?.fullName || "—"}
+              </p>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 26,
+                  fontWeight: 800,
+                  color: "#7f1d1d",
+                  fontFamily: "'Cormorant Garamond', serif",
+                }}
+              >
+                {(data?.genotype || "").toUpperCase()}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Date + disclaimer */}
+        {assessmentData.createdAt && (
+          <p
+            style={{
+              marginTop: 20,
+              fontSize: 12,
+              color: "#d1d5db",
+              textAlign: "center",
+            }}
+          >
+            {t("form.submitted_on")}{" "}
+            {new Date(assessmentData.createdAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        )}
+        <p
+          style={{
+            margin: "8px 0 24px",
+            fontSize: 12,
+            color: "#9ca3af",
+            textAlign: "center",
+            lineHeight: 1.6,
+          }}
+        >
+          {t("form.disclaimer")}
+        </p>
+        <div style={{ textAlign: "center" }}>
+          <Link to="/chatbot" className="cf-chat-link">
+            <span>💬</span> {t("form.chat_link")}
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function CoupleForm() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -247,203 +442,6 @@ function CoupleForm() {
         </div>
       </>
     );
-
-  // ── Result Card component ──
-  // Uses translateMLResult to convert English ML output to the selected language
-  const ResultCard = ({ assessmentData, husband, wife }) => {
-    const { riskLevel, recommendation } = translateMLResult(assessmentData, t);
-    const color = getRiskColor(assessmentData.riskLevel); // color still based on English key for consistency
-
-    return (
-      <div id="result-card" className="cf-result">
-        <div
-          className="cf-result-header"
-          style={{
-            background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-          }}
-        >
-          <span style={{ fontSize: 32 }}>
-            {getRiskIcon(assessmentData.riskLevel)}
-          </span>
-          <div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 11,
-                color: "rgba(255,255,255,0.75)",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                fontFamily: "'Inter',sans-serif",
-              }}
-            >
-              {t("form.result_label")}
-            </p>
-            <h3
-              className="cf-display"
-              style={{
-                margin: 0,
-                fontSize: 26,
-                fontWeight: 700,
-                color: "#fff",
-              }}
-            >
-              {/* ✅ ML result translated here */}
-              {riskLevel}
-            </h3>
-          </div>
-        </div>
-
-        <div className="cf-result-body">
-          {/* Probability bar */}
-          <div style={{ marginBottom: 20 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 6,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 11,
-                  color: "#9ca3af",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                {t("form.risk_probability")}
-              </span>
-              <span style={{ fontSize: 22, fontWeight: 800, color }}>
-                {assessmentData.probability}%
-              </span>
-            </div>
-            <div className="cf-prob-bar-track">
-              <div
-                className="cf-prob-bar-fill"
-                style={{
-                  width: `${assessmentData.probability}%`,
-                  background: `linear-gradient(90deg, ${color}, ${color}99)`,
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Recommendation — translated */}
-          <div
-            className="cf-rec-box"
-            style={{
-              background: "#fdf5f5",
-              border: `1px solid ${color}33`,
-              borderLeft: `4px solid ${color}`,
-            }}
-          >
-            <p
-              style={{
-                margin: "0 0 6px",
-                fontSize: 11,
-                color: "#9ca3af",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-              }}
-            >
-              {t("form.recommendation_label")}
-            </p>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 15,
-                color: "#374151",
-                lineHeight: 1.65,
-              }}
-            >
-              {/* ✅ Recommendation translated here */}
-              {recommendation}
-            </p>
-          </div>
-
-          {/* Genotype cards */}
-          <div className="cf-genotype-grid">
-            {[
-              { label: t("form.husband"), data: husband },
-              { label: t("form.wife"), data: wife },
-            ].map(({ label, data }) => (
-              <div key={label} className="cf-genotype-card">
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 10,
-                    color: "#9ca3af",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    fontWeight: 600,
-                  }}
-                >
-                  {label}
-                </p>
-                <p
-                  style={{
-                    margin: "4px 0 2px",
-                    fontSize: 13,
-                    color: "#6b7280",
-                  }}
-                >
-                  {data?.fullName || "—"}
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 26,
-                    fontWeight: 800,
-                    color: "#7f1d1d",
-                    fontFamily: "'Cormorant Garamond', serif",
-                  }}
-                >
-                  {(data?.genotype || "").toUpperCase()}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Date + disclaimer */}
-          {assessmentData.createdAt && (
-            <p
-              style={{
-                marginTop: 20,
-                fontSize: 12,
-                color: "#d1d5db",
-                textAlign: "center",
-              }}
-            >
-              {t("form.submitted_on")}{" "}
-              {new Date(assessmentData.createdAt).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
-          )}
-          <p
-            style={{
-              margin: "8px 0 24px",
-              fontSize: 12,
-              color: "#9ca3af",
-              textAlign: "center",
-              lineHeight: 1.6,
-            }}
-          >
-            {t("form.disclaimer")}
-          </p>
-          <div style={{ textAlign: "center" }}>
-            <Link to="/chatbot" className="cf-chat-link">
-              <span>💬</span> {t("form.chat_link")}
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   // ── Existing result view (form locked) ──
   if (existingData && assessment)
