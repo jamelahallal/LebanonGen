@@ -106,12 +106,11 @@ function Drlog() {
 
       if (response.data.token) {
         localStorage.setItem("doctorToken", response.data.token);
-        localStorage.setItem("doctorRole", response.data.role);
-        localStorage.setItem("doctorName", response.data.name);
+        localStorage.setItem("drEmail", email);
+        localStorage.setItem("drRole", response.data.role);
 
-        const role = response.data.role.toLowerCase(); // normalize just in case
-
-        console.log("Role received:", role); // ← add this
+        const role = response.data.role.toLowerCase(); 
+        console.log("Role received:", role);
 
         if (role === "admin") {
           navigate("/dashboard/admin");
