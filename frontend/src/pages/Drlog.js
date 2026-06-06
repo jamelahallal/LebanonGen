@@ -111,11 +111,11 @@ function Drlog() {
 
         const role = response.data.role;
 
-        if (role === "Admin") {
+        if (role === "admin") {
           navigate("/dashboard/admin");
-        } else if (role === "Consultant") {
+        } else if (role === "doctor") {
           navigate("/dashboard/consultant");
-        } else if (role === "Researcher") {
+        } else if (role === "researcher") {
           navigate("/dashboard/researcher");
         } else {
           setError("Unrecognized role. Please contact the administrator.");
