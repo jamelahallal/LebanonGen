@@ -341,7 +341,7 @@ module.exports = (db) => {
 
       // Organize data
       const coupleData = {
-        coupleId: results[0].CoupleID,
+        coupleID: results[0].CoupleID,
         email: results[0].Email,
         registeredAt: results[0].CreatedAt,
         assessmentDate: results[0].AssessmentDate,

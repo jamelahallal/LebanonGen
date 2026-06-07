@@ -156,6 +156,15 @@ module.exports = (db) => {
                 .json({ error: "Failed to save partner records." });
             }
 
+            db.execute(
+              "UPDATE couple SET MapConsent = ? WHERE CoupleID = ?",
+              [persons[0].mapConsent ? 1 : 0, coupleID],
+              (consentErr) => {
+                if (consentErr)
+                  console.error("Consent save error:", consentErr);
+              },
+            );
+
             // 3. Call Flask ML model
             const normalizeGenotype = (g) =>
               g?.toUpperCase().split("").sort().join("");
@@ -306,21 +315,23 @@ module.exports = (db) => {
     });
   });
 
-// 5.LEBANON MAP: Region stats for the public dashboard map
-router.get("/map-region-stats", (req, res) => {
-  const sql = `
-    SELECT r.Name AS region, 
-    SUM(CASE WHEN p.Genotype = 'AS' THEN 1 ELSE 0 END) as carriers,
-    SUM(CASE WHEN p.Genotype = 'SS' THEN 1 ELSE 0 END) as infected
+  // 5.LEBANON MAP: Region stats for the public dashboard map
+  router.get("/map-region-stats", (req, res) => {
+    const sql = `
+        SELECT r.Name AS region, 
+      SUM(CASE WHEN p.Genotype = 'AS' THEN 1 ELSE 0 END) as carriers,
+      SUM(CASE WHEN p.Genotype = 'SS' THEN 1 ELSE 0 END) as infected
     FROM region r
     LEFT JOIN person p ON r.RegionID = p.RegionID
+    LEFT JOIN couple c ON p.CoupleID = c.CoupleID
+    WHERE c.MapConsent = 1 OR c.MapConsent IS NULL
     GROUP BY r.RegionID, r.Name
   `;
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
+    db.query(sql, (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
+    });
   });
-});
 
   // 6. RESET PASSWORD (bcrypt secure)
   router.post("/reset-password", (req, res) => {
