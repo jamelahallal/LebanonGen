@@ -47,13 +47,12 @@ export function useAutoLogout() {
     const prev = prevPath.current;
     const curr = location.pathname;
 
-    // ── Patient auto-logout ──
     const patientWasProtected = PATIENT_PROTECTED.some((p) =>
       prev.startsWith(p),
     );
-    const patientGoingPublic = PATIENT_PUBLIC_TRIGGERS.some(
-      (p) => curr === p || curr.startsWith(p),
-    );
+    const patientGoingPublic =
+      !PATIENT_PROTECTED.some((p) => curr.startsWith(p)) &&
+      PATIENT_PUBLIC_TRIGGERS.some((p) => curr === p || curr.startsWith(p));
 
     if (
       patientWasProtected &&
@@ -64,11 +63,10 @@ export function useAutoLogout() {
       navigate(curr);
     }
 
-    // ── Admin auto-logout ──
     const adminWasProtected = ADMIN_PROTECTED.some((p) => prev.startsWith(p));
-    const adminGoingPublic = ADMIN_PUBLIC_TRIGGERS.some(
-      (p) => curr === p || curr.startsWith(p),
-    );
+    const adminGoingPublic =
+      !ADMIN_PROTECTED.some((p) => curr.startsWith(p)) &&
+      ADMIN_PUBLIC_TRIGGERS.some((p) => curr === p || curr.startsWith(p));
 
     if (
       adminWasProtected &&
