@@ -108,6 +108,7 @@ function Drlog() {
         localStorage.setItem("doctorToken", response.data.token);
         localStorage.setItem("drEmail", email);
         localStorage.setItem("drRole", response.data.role);
+        localStorage.setItem("isAdminLoggedIn", "true"); 
 
         const role = response.data.role.toLowerCase(); 
         console.log("Role received:", role);

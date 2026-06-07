@@ -1,6 +1,6 @@
 import "./i18n/i18n";
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useAutoLogout } from "./components/useAutoLogout";
 
 import Navbar from "./components/Navbar";
 import CoupleForm from "./components/CoupleForm";
@@ -18,29 +18,35 @@ import ScrollToTop from "./utils/ScrollOnTop";
 import Reset from "./pages/Reset";
 import "leaflet/dist/leaflet.css";
 
+// Must be a separate component so useLocation works inside <Router>
+function AppInner() {
+  useAutoLogout(); // 👈 watches every navigation, auto-logs out if leaving protected pages
+  return (
+    <div className="pt-20">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/form" element={<CoupleForm />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/drlog" element={<Drlog />} />
+        <Route path="/chatbot" element={<ChatBot />} />
+        <Route path="/reset" element={<Reset />} />
+        <Route path="/dashboard/consultant" element={<MedicalConsultant />} />
+        <Route path="/dashboard/researcher" element={<GeneticResearcher />} />
+        <Route path="/dashboard/admin" element={<SystemAdmin />} />
+      </Routes>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
       <ScrollToTop />
       <Navbar />
-      <div className="pt-20">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/form" element={<CoupleForm />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/drlog" element={<Drlog />} />
-          <Route path="/chatbot" element={<ChatBot />} />
-          <Route path="/reset" element={<Reset />} />
-
-          {/* Role-Based Dashboard Routes — no translation needed */}
-          <Route path="/dashboard/consultant" element={<MedicalConsultant />} />
-          <Route path="/dashboard/researcher" element={<GeneticResearcher />} />
-          <Route path="/dashboard/admin" element={<SystemAdmin />} />
-        </Routes>
-      </div>
+      <AppInner /> {/* Single Routes block lives here */}
     </Router>
   );
 }

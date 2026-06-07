@@ -13,6 +13,10 @@ function GeneticResearcher() {
   const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
+    if (localStorage.getItem("isAdminLoggedIn") !== "true") navigate("/drlog");
+  }, [navigate]);
+
+  useEffect(() => {
     const email = localStorage.getItem("drEmail");
     const role = localStorage.getItem("drRole");
     if (!email || !role) {

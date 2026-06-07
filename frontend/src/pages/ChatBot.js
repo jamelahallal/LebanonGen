@@ -206,6 +206,10 @@ function ChatBot() {
   const [isTyping, setIsTyping] = useState(false);
   const [contextData, setContextData] = useState(null);
   const chatEndRef = useRef(null);
+  
+  useEffect(() => {
+    if (localStorage.getItem("isLoggedIn") !== "true") navigate("/login");
+  }, [navigate]);
 
   useEffect(() => {
     const savedAssessment = localStorage.getItem("latestAssessmentData");
@@ -314,7 +318,7 @@ function ChatBot() {
                 <p className="cb-subtitle">{t("chatbot.subtitle")}</p>
               </div>
             </div>
-            <button className="cb-close-btn" onClick={() => navigate(-1)}>
+            <button className="cb-close-btn" onClick={() => navigate("/form")}>
               <X size={18} />
             </button>
           </div>
@@ -386,16 +390,8 @@ function ChatBot() {
           <div className="cb-footer">
             <div className="cb-disclaimer">
               <ShieldAlert size={13} color="#b91c1c" />
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 11,
-                  color: "#9ca3af",
-                  fontStyle: "italic",
-                }}
-              >
-                {t("form.disclaimer") ||
-                  "Educational guidance only · Not a substitute for medical advice"}
+              <p style={{ margin: 0, fontSize: 11, color: "#9ca3af", fontStyle: "italic" }}>
+                {t("form.disclaimer") || "Educational guidance only · Not a substitute for medical advice"}
               </p>
             </div>
             <form onSubmit={handleSend} className="cb-input-row">
@@ -405,22 +401,51 @@ function ChatBot() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t("chatbot.placeholder")}
                 className="cb-input"
-                style={{
-                  textAlign: isRtl ? "right" : "left",
-                  direction: isRtl ? "rtl" : "ltr",
-                }}
+                style={{ textAlign: isRtl ? "right" : "left", direction: isRtl ? "rtl" : "ltr" }}
               />
-              <button
-                type="submit"
-                className="cb-send"
-                disabled={!input.trim() || isTyping}
-              >
+              <button type="submit" className="cb-send" disabled={!input.trim() || isTyping}>
                 <Send size={18} />
               </button>
             </form>
           </div>
-        </div>
-      </div>
+
+          {/* ── Back to Assessment bar ── */}
+          <div style={{
+            padding: "14px 28px",
+            borderTop: "1px solid #f3f4f6",
+            background: "#fafafa",
+            display: "flex",
+            justifyContent: "center",
+          }}>
+            <button
+              onClick={() => navigate("/form")}
+              className="cf-chat-link"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)",
+                color: "#fff",
+                border: "none",
+                padding: "11px 28px",
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 600,
+                fontFamily: "'Inter', sans-serif",
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(127,29,29,0.25)",
+                transition: "opacity 0.2s, transform 0.15s",
+                textDecoration: "none",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              ← {t("chatbot.back_to_assessment", { defaultValue: "Back to Assessment" })}
+            </button>
+          </div>
+
+        </div> {/* end cb-card */}
+      </div>   {/* end cb-body */}
     </>
   );
 }
