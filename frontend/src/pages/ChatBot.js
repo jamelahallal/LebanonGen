@@ -206,7 +206,7 @@ function ChatBot() {
   const [isTyping, setIsTyping] = useState(false);
   const [contextData, setContextData] = useState(null);
   const chatEndRef = useRef(null);
-  
+
   useEffect(() => {
     if (localStorage.getItem("isLoggedIn") !== "true") navigate("/login");
   }, [navigate]);
@@ -273,7 +273,17 @@ function ChatBot() {
 
     try {
       const coupleID = localStorage.getItem("coupleID");
-
+      if (!coupleID) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            text: "Session expired. Please log out and log back in.",
+          },
+        ]);
+        setInput("");
+        return;
+      }
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/ai/chat`,
         {
@@ -390,8 +400,16 @@ function ChatBot() {
           <div className="cb-footer">
             <div className="cb-disclaimer">
               <ShieldAlert size={13} color="#b91c1c" />
-              <p style={{ margin: 0, fontSize: 11, color: "#9ca3af", fontStyle: "italic" }}>
-                {t("form.disclaimer") || "Educational guidance only · Not a substitute for medical advice"}
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  color: "#9ca3af",
+                  fontStyle: "italic",
+                }}
+              >
+                {t("form.disclaimer") ||
+                  "Educational guidance only · Not a substitute for medical advice"}
               </p>
             </div>
             <form onSubmit={handleSend} className="cb-input-row">
@@ -401,22 +419,31 @@ function ChatBot() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t("chatbot.placeholder")}
                 className="cb-input"
-                style={{ textAlign: isRtl ? "right" : "left", direction: isRtl ? "rtl" : "ltr" }}
+                style={{
+                  textAlign: isRtl ? "right" : "left",
+                  direction: isRtl ? "rtl" : "ltr",
+                }}
               />
-              <button type="submit" className="cb-send" disabled={!input.trim() || isTyping}>
+              <button
+                type="submit"
+                className="cb-send"
+                disabled={!input.trim() || isTyping}
+              >
                 <Send size={18} />
               </button>
             </form>
           </div>
 
           {/* ── Back to Assessment bar ── */}
-          <div style={{
-            padding: "14px 28px",
-            borderTop: "1px solid #f3f4f6",
-            background: "#fafafa",
-            display: "flex",
-            justifyContent: "center",
-          }}>
+          <div
+            style={{
+              padding: "14px 28px",
+              borderTop: "1px solid #f3f4f6",
+              background: "#fafafa",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
             <button
               onClick={() => navigate("/form")}
               className="cf-chat-link"
@@ -437,15 +464,25 @@ function ChatBot() {
                 transition: "opacity 0.2s, transform 0.15s",
                 textDecoration: "none",
               }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = "0.9";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = "1";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
             >
-              ← {t("chatbot.back_to_assessment", { defaultValue: "Back to Assessment" })}
+              ←{" "}
+              {t("chatbot.back_to_assessment", {
+                defaultValue: "Back to Assessment",
+              })}
             </button>
           </div>
-
-        </div> {/* end cb-card */}
-      </div>   {/* end cb-body */}
+        </div>{" "}
+        {/* end cb-card */}
+      </div>{" "}
+      {/* end cb-body */}
     </>
   );
 }

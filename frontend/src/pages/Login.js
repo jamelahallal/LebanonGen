@@ -42,10 +42,10 @@ function Login() {
         },
       );
       const data = await response.json();
-      console.log("Login API response:", data);
       if (response.ok) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("coupleID", data.user.id);
+        localStorage.removeItem("coupleId"); // remove stale lowercase version
         localStorage.setItem("userEmail", data.user.email);
         navigate("/form");
       } else {
