@@ -42,6 +42,7 @@ function Login() {
         },
       );
       const data = await response.json();
+      console.log("Login API response:", data);
       if (response.ok) {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("coupleID", data.user.id);
