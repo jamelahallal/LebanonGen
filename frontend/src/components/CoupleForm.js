@@ -186,7 +186,6 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
     return `mailto:leila.saab@lebanongen.com?subject=${subject}&body=${body}`;
   };
 
-
   // Risk badge accent color for PDF
   const getRiskBadgeRGB = (rl) => {
     if (!rl) return [136, 136, 136];
@@ -200,9 +199,11 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
 
   // ── Generate PDF client-side ──
   const handleDownloadPDF = () => {
+    const pt = (key, opts = {}) => t(key, { ...opts, lng: "en" });
+
     import("jspdf")
       .then((module) => {
-       const jsPDF = module.jsPDF || module.default?.jsPDF || module.default;
+        const jsPDF = module.jsPDF || module.default?.jsPDF || module.default;
         const lang = i18n.language || "en";
         const doc = new jsPDF({
           orientation: "portrait",
@@ -225,19 +226,32 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
           if (fillColor) doc.setFillColor(...fillColor);
           if (strokeColor) doc.setDrawColor(...strokeColor);
           else doc.setDrawColor(255, 255, 255);
-          doc.roundedRect(x, yy, w, h, 3, 3, fillColor ? (strokeColor ? "FD" : "F") : "S");
+          doc.roundedRect(
+            x,
+            yy,
+            w,
+            h,
+            3,
+            3,
+            fillColor ? (strokeColor ? "FD" : "F") : "S",
+          );
         };
         const wrapText = (text, x, yy, maxW, lineH = 6, opts = {}) => {
           setFont(opts.style || "normal", opts.size || 10);
           doc.setTextColor(...(opts.color || [55, 65, 81]));
-          // Strip all emoji/non-latin characters to avoid jsPDF garbling
-          const clean = String(text).replace(/[^\x00-\x7F]/g, "");
+          const clean =
+            String(text)
+              .replace(/[^\x00-\x7F]/g, "")
+              .trim() || String(text);
           const lines = doc.splitTextToSize(clean, maxW);
           doc.text(lines, x, yy);
           return yy + lines.length * lineH;
         };
         const checkPage = (needed = 20) => {
-          if (y + needed > pageH - margin) { doc.addPage(); y = margin; }
+          if (y + needed > pageH - margin) {
+            doc.addPage();
+            y = margin;
+          }
         };
 
         // ── Header banner ──
@@ -248,18 +262,27 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         setFont("normal", 10);
         doc.setTextColor(252, 202, 202);
         doc.text(
-          t("form.pdf_subtitle", { defaultValue: "Genetic Risk Assessment Report" }),
-          margin, 27,
+          pt("form.pdf_subtitle", {
+            defaultValue: "Genetic Risk Assessment Report",
+          }),
+          margin,
+          27,
         );
         const dateStr = new Date().toLocaleDateString("en-GB", {
-          day: "numeric", month: "long", year: "numeric",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
         });
         doc.text(dateStr, pageW - margin, 27, { align: "right" });
         y = 54;
 
         // ── Risk result box — clean design, no emoji ──
         const riskColorRGB = color.startsWith("#")
-          ? [parseInt(color.slice(1,3),16), parseInt(color.slice(3,5),16), parseInt(color.slice(5,7),16)]
+          ? [
+              parseInt(color.slice(1, 3), 16),
+              parseInt(color.slice(3, 5), 16),
+              parseInt(color.slice(5, 7), 16),
+            ]
           : [127, 29, 29];
         const badgeRGB = getRiskBadgeRGB(assessmentData.riskLevel);
 
@@ -275,8 +298,9 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         doc.setTextColor(255, 255, 255);
         doc.text(
           `${Math.round(Number(assessmentData.probability || 0))}%`,
-          margin + 15, y + 18,
-          { align: "center" }
+          margin + 15,
+          y + 18,
+          { align: "center" },
         );
 
         // Risk level text
@@ -290,7 +314,8 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         doc.setTextColor(240, 200, 200);
         doc.text(
           `${t("form.risk_probability", { defaultValue: "Risk Probability" })}: ${Number(assessmentData.probability || 0).toFixed(2)}%`,
-          margin + 30, y + 24,
+          margin + 30,
+          y + 24,
         );
         y += 42;
 
@@ -301,11 +326,13 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         doc.setTextColor(127, 29, 29);
         doc.text(
           t("form.recommendation_label", { defaultValue: "Recommendation" }),
-          margin + 6, y + 5.5,
+          margin + 6,
+          y + 5.5,
         );
         y += 12;
         y = wrapText(recommendation, margin + 6, y + 2, contentW - 12, 6, {
-          size: 10, color: [55, 65, 81],
+          size: 10,
+          color: [55, 65, 81],
         });
         y += 8;
 
@@ -316,12 +343,16 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         doc.setTextColor(127, 29, 29);
         doc.text(
           t("form.section_personal", { defaultValue: "Personal Information" }),
-          margin + 6, y + 5.5,
+          margin + 6,
+          y + 5.5,
         );
         y += 12;
 
         const infoRows = [
-          [t("form.husband", { defaultValue: "Husband" }), husband?.fullName || "-"],
+          [
+            t("form.husband", { defaultValue: "Husband" }),
+            husband?.fullName || "-",
+          ],
           [t("form.wife", { defaultValue: "Wife" }), wife?.fullName || "-"],
           [
             `${t("form.husband", { defaultValue: "Husband" })} ${t("form.genotype", { defaultValue: "Genotype" })}`,
@@ -352,10 +383,16 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         setFont("normal", 9);
         doc.setTextColor(146, 64, 14);
         const disclaimerRaw = t("form.disclaimer", {
-          defaultValue: "This result is for informational purposes only. Please consult a licensed genetic counselor.",
+          defaultValue:
+            "This result is for informational purposes only. Please consult a licensed genetic counselor.",
         });
-        const disclaimerClean = disclaimerRaw.replace(/[^\x00-\x7F]/g, "").trim();
-        const disclaimerLines = doc.splitTextToSize(disclaimerClean, contentW - 12);
+        const disclaimerClean = disclaimerRaw
+          .replace(/[^\x00-\x7F]/g, "")
+          .trim();
+        const disclaimerLines = doc.splitTextToSize(
+          disclaimerClean,
+          contentW - 12,
+        );
         doc.text(disclaimerLines, margin + 6, y + 6);
         y += 24;
 
@@ -366,11 +403,16 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         doc.setTextColor(22, 101, 52);
         doc.text(
           t("form.dr_consult_title", { defaultValue: "Consult a Specialist" }),
-          margin + 6, y + 7,
+          margin + 6,
+          y + 7,
         );
         setFont("normal", 9);
         doc.setTextColor(21, 128, 61);
-        doc.text("Dr. Leila Saab  -  leila.saab@lebanongen.com", margin + 6, y + 14);
+        doc.text(
+          "Dr. Leila Saab  -  leila.saab@lebanongen.com",
+          margin + 6,
+          y + 14,
+        );
         y += 24;
 
         // ── Footer ──
@@ -378,7 +420,9 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
         doc.setTextColor(209, 213, 219);
         doc.text(
           "LebanonGen  -  Beirut, Lebanon  -  www.lebanongen.com",
-          pageW / 2, pageH - 10, { align: "center" },
+          pageW / 2,
+          pageH - 10,
+          { align: "center" },
         );
 
         // ── Mobile-safe download: use blob URL instead of doc.save() ──
@@ -461,7 +505,7 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
             <div
               className="cf-prob-bar-fill"
               style={{
-               width: `${Number(assessmentData.probability || 0)}%`,
+                width: `${Number(assessmentData.probability || 0)}%`,
                 background: `linear-gradient(90deg, ${color}, ${color}99)`,
               }}
             />
