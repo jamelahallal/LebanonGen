@@ -147,6 +147,49 @@ const getRiskIcon = (riskLevel) => {
   return "🟢";
 };
 
+// ── English-only lookups for the PDF report ──
+// The PDF is always generated in English regardless of the site's
+// active language, so these labels are intentionally hard-coded.
+const PDF_REGION_NAMES_EN = {
+  1: "Beirut",
+  2: "Mount Lebanon",
+  3: "Keserwan",
+  4: "North Lebanon",
+  5: "Akkar",
+  6: "Bekaa",
+  7: "Baalbek-Hermel",
+  8: "South Lebanon",
+  9: "Nabatieh",
+};
+
+const PDF_GENOTYPE_LABELS_EN = {
+  AA: "AA (Normal)",
+  AS: "AS (Carrier)",
+  SS: "SS (Affected - SCD)",
+};
+
+const pdfFormatDate = (value) => {
+  if (!value) return "N/A";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "N/A";
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const pdfYesNo = (value) => {
+  if (value === 1 || value === "1" || value === true) return "Yes";
+  if (value === 0 || value === "0" || value === false) return "No";
+  return "N/A";
+};
+
+const pdfValue = (value, fallback = "N/A") => {
+  if (value === undefined || value === null || value === "") return fallback;
+  return String(value);
+};
+
 // ── Field & SelectWrap moved outside — fixes focus-loss bug ──
 const Field = ({ label, children }) => (
   <div>
@@ -197,126 +240,337 @@ const ResultCard = ({ assessmentData, husband, wife, t, i18n }) => {
     return [34, 120, 50];
   };
 
-  // ── Generate PDF client-side ──
+  // ── Generate an official PDF report (vector-based, always in English) ──
   const handleDownloadPDF = () => {
-    const resultCard = document.getElementById("result-card");
-    if (!resultCard) {
-      alert("Result card not found.");
-      return;
-    }
-
-    Promise.all([import("jspdf"), import("html2canvas")])
-      .then(([jspdfModule, html2canvasModule]) => {
+    import("jspdf")
+      .then((jspdfModule) => {
         const jsPDF =
           jspdfModule.jsPDF ||
           jspdfModule.default?.jsPDF ||
           jspdfModule.default;
-        const html2canvas = html2canvasModule.default;
 
-        html2canvas(resultCard, {
-          scale: 2, // high resolution
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          logging: false,
-        }).then((canvas) => {
-          const imgData = canvas.toDataURL("image/png");
+        const doc = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
 
-          const doc = new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4",
-          });
+        const pageW = 210;
+        const pageH = 297;
+        const margin = 15;
+        const contentW = pageW - margin * 2;
+        const footerY = pageH - 12;
+        const riskRGB = getRiskBadgeRGB(assessmentData.riskLevel);
 
-          const pageW = 210;
-          const pageH = 297;
-          const margin = 15;
-          const contentW = pageW - margin * 2;
+        const reportDate = pdfFormatDate(new Date());
+        const submittedDate = pdfFormatDate(assessmentData.createdAt);
+        const rawId =
+          assessmentData._id || assessmentData.id || `${Date.now()}`;
+        const reportId = String(rawId).slice(-10).toUpperCase();
 
-          // ── Header banner (always in chosen language via the card screenshot) ──
-          doc.setFillColor(127, 29, 29);
-          doc.rect(0, 0, pageW, 28, "F");
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(18);
-          doc.setTextColor(255, 255, 255);
-          doc.text("LebanonGen", margin, 13);
+        let y = 42;
+
+        // ── Footer drawn on every page once content is finished ──
+        const drawFooter = (pageNum, totalPages) => {
+          doc.setDrawColor(240, 232, 232);
+          doc.setLineWidth(0.3);
+          doc.line(margin, footerY - 4, pageW - margin, footerY - 4);
           doc.setFont("helvetica", "normal");
-          doc.setFontSize(9);
-          doc.setTextColor(252, 202, 202);
-          doc.text("Genetic Risk Assessment Report", margin, 20);
-          const dateStr = new Date().toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          });
-          doc.text(dateStr, pageW - margin, 20, { align: "right" });
-
-          // ── Screenshot of the result card ──
-          const imgW = contentW;
-          const imgH = (canvas.height * imgW) / canvas.width;
-          const startY = 33;
-
-          // If the image fits in one page
-          if (startY + imgH <= pageH - 10) {
-            doc.addImage(imgData, "PNG", margin, startY, imgW, imgH);
-          } else {
-            // Multi-page support: slice the image across pages
-            const pageContentH = pageH - startY - 10;
-            let remainingH = imgH;
-            let sourceY = 0;
-
-            while (remainingH > 0) {
-              const sliceH = Math.min(remainingH, pageContentH);
-              const sliceCanvas = document.createElement("canvas");
-              sliceCanvas.width = canvas.width;
-              sliceCanvas.height = (sliceH / imgH) * canvas.height;
-              const ctx = sliceCanvas.getContext("2d");
-              ctx.drawImage(
-                canvas,
-                0,
-                sourceY * (canvas.height / imgH),
-                canvas.width,
-                sliceCanvas.height,
-                0,
-                0,
-                canvas.width,
-                sliceCanvas.height,
-              );
-              const sliceData = sliceCanvas.toDataURL("image/png");
-              doc.addImage(sliceData, "PNG", margin, startY, imgW, sliceH);
-              remainingH -= sliceH;
-              sourceY += sliceH;
-              if (remainingH > 0) {
-                doc.addPage();
-              }
-            }
-          }
-
-          // ── Footer ──
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(7);
-          doc.setTextColor(180, 180, 180);
+          doc.setFontSize(7.5);
+          doc.setTextColor(150, 150, 150);
           doc.text(
             "LebanonGen  -  Beirut, Lebanon  -  www.lebanongen.com",
-            pageW / 2,
-            pageH - 5,
+            margin,
+            footerY,
+          );
+          doc.text(
+            `Page ${pageNum} of ${totalPages}`,
+            pageW - margin,
+            footerY,
+            {
+              align: "right",
+            },
+          );
+        };
+
+        // ── Adds a new page (with a slim continuation header) if there
+        //     isn't enough vertical space left for the next block ──
+        const ensureSpace = (neededHeight) => {
+          if (y + neededHeight > pageH - 20) {
+            doc.addPage();
+            y = 20;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.setTextColor(127, 29, 29);
+            doc.text(
+              "LebanonGen  -  Genetic Risk Assessment Report (continued)",
+              margin,
+              14,
+            );
+            doc.setDrawColor(240, 232, 232);
+            doc.setLineWidth(0.3);
+            doc.line(margin, 17, pageW - margin, 17);
+          }
+        };
+
+        const sectionTitle = (title) => {
+          ensureSpace(14);
+          doc.setFillColor(250, 245, 245);
+          doc.setDrawColor(240, 232, 232);
+          doc.setLineWidth(0.2);
+          doc.roundedRect(margin, y, contentW, 9, 1.5, 1.5, "FD");
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(11);
+          doc.setTextColor(127, 29, 29);
+          doc.text(title, margin + 4, y + 6.2);
+          y += 14;
+        };
+
+        // ── Header banner (first page) ──
+        doc.setFillColor(127, 29, 29);
+        doc.rect(0, 0, pageW, 32, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.setTextColor(255, 255, 255);
+        doc.text("LebanonGen", margin, 14);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(252, 202, 202);
+        doc.text("Official Genetic Risk Assessment Report", margin, 21);
+
+        doc.setFontSize(8);
+        doc.setTextColor(255, 226, 226);
+        doc.text(`Report ID: ${reportId}`, pageW - margin, 12, {
+          align: "right",
+        });
+        doc.text(`Generated: ${reportDate}`, pageW - margin, 18, {
+          align: "right",
+        });
+        doc.text(`Submitted: ${submittedDate}`, pageW - margin, 24, {
+          align: "right",
+        });
+
+        // ── Section 1: Patient Information ──
+        const labelColW = 46;
+        const dataColW = (contentW - labelColW) / 2;
+        const rowH = 8;
+
+        const infoRows = [
+          ["Full Name", pdfValue(husband?.fullName), pdfValue(wife?.fullName)],
+          [
+            "Date of Birth",
+            pdfFormatDate(husband?.dob),
+            pdfFormatDate(wife?.dob),
+          ],
+          [
+            "Region",
+            PDF_REGION_NAMES_EN[husband?.region] || pdfValue(husband?.region),
+            PDF_REGION_NAMES_EN[wife?.region] || pdfValue(wife?.region),
+          ],
+          [
+            "Blood Type",
+            pdfValue(husband?.bloodType),
+            pdfValue(wife?.bloodType),
+          ],
+          ["Rh Factor", pdfValue(husband?.rhFactor), pdfValue(wife?.rhFactor)],
+          [
+            "Genotype",
+            PDF_GENOTYPE_LABELS_EN[(husband?.genotype || "").toUpperCase()] ||
+              pdfValue(husband?.genotype),
+            PDF_GENOTYPE_LABELS_EN[(wife?.genotype || "").toUpperCase()] ||
+              pdfValue(wife?.genotype),
+          ],
+          [
+            "Family History of SCD",
+            pdfYesNo(husband?.familyHistory),
+            pdfYesNo(wife?.familyHistory),
+          ],
+          [
+            "Previously Affected Child",
+            pdfYesNo(husband?.hasAffectedChild ?? wife?.hasAffectedChild),
+            pdfYesNo(wife?.hasAffectedChild ?? husband?.hasAffectedChild),
+          ],
+        ];
+
+        ensureSpace(14 + rowH * (infoRows.length + 1));
+        sectionTitle("1.  Patient Information");
+
+        // Column header row
+        doc.setFillColor(127, 29, 29);
+        doc.rect(margin, y, contentW, rowH, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text("Field", margin + 3, y + 5.5);
+        doc.text("Husband", margin + labelColW + dataColW / 2, y + 5.5, {
+          align: "center",
+        });
+        doc.text(
+          "Wife",
+          margin + labelColW + dataColW + dataColW / 2,
+          y + 5.5,
+          { align: "center" },
+        );
+        y += rowH;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        infoRows.forEach((row, idx) => {
+          if (idx % 2 === 0) {
+            doc.setFillColor(250, 248, 248);
+            doc.rect(margin, y, contentW, rowH, "F");
+          }
+          doc.setDrawColor(240, 232, 232);
+          doc.setLineWidth(0.2);
+          doc.rect(margin, y, contentW, rowH, "S");
+          doc.line(margin + labelColW, y, margin + labelColW, y + rowH);
+          doc.line(
+            margin + labelColW + dataColW,
+            y,
+            margin + labelColW + dataColW,
+            y + rowH,
+          );
+
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(80, 80, 80);
+          doc.text(row[0], margin + 3, y + 5.5);
+
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(40, 40, 40);
+          doc.text(row[1], margin + labelColW + dataColW / 2, y + 5.5, {
+            align: "center",
+          });
+          doc.text(
+            row[2],
+            margin + labelColW + dataColW + dataColW / 2,
+            y + 5.5,
             { align: "center" },
           );
 
-          // ── Download ──
-          const filename = `LebanonGen_Assessment_${Date.now()}.pdf`;
-          const blob = doc.output("blob");
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = filename;
-          a.style.display = "none";
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }, 1000);
+          y += rowH;
         });
+        y += 10;
+
+        // ── Section 2: Assessment Results ──
+        const recText = pdfValue(
+          assessmentData.recommendation,
+          "Please consult a genetic counselor for a detailed evaluation.",
+        );
+        const recLines = doc.splitTextToSize(recText, contentW);
+
+        ensureSpace(14 + 16 + 11 + 5 + recLines.length * 5 + 8);
+        sectionTitle("2.  Assessment Results");
+
+        // Risk level + probability box
+        doc.setFillColor(riskRGB[0], riskRGB[1], riskRGB[2]);
+        doc.roundedRect(margin, y, contentW, 16, 2, 2, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text("RISK LEVEL", margin + 5, y + 6);
+        doc.setFontSize(14);
+        doc.text(
+          pdfValue(assessmentData.riskLevel, "Not Available"),
+          margin + 5,
+          y + 12.5,
+        );
+
+        doc.setFontSize(9);
+        doc.text("RISK PROBABILITY", pageW - margin - 5, y + 6, {
+          align: "right",
+        });
+        doc.setFontSize(18);
+        doc.text(
+          `${pdfValue(assessmentData.probability, "0")}%`,
+          pageW - margin - 5,
+          y + 13.5,
+          { align: "right" },
+        );
+        y += 22;
+
+        // Probability bar
+        const probValue = Math.min(
+          100,
+          Math.max(0, Number(assessmentData.probability) || 0),
+        );
+        doc.setFillColor(240, 232, 232);
+        doc.roundedRect(margin, y, contentW, 4, 2, 2, "F");
+        if (probValue > 0) {
+          doc.setFillColor(riskRGB[0], riskRGB[1], riskRGB[2]);
+          doc.roundedRect(
+            margin,
+            y,
+            (contentW * probValue) / 100,
+            4,
+            2,
+            2,
+            "F",
+          );
+        }
+        y += 11;
+
+        // Recommendation
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(127, 29, 29);
+        doc.text("Recommendation", margin, y);
+        y += 5;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(55, 65, 81);
+        doc.text(recLines, margin, y);
+        y += recLines.length * 5 + 8;
+
+        // ── Section 3: Medical Consultation ──
+        const consultLines = doc.splitTextToSize(
+          "Based on these results, we recommend scheduling a consultation with Dr. Leila Saab, our medical genetic consultant, to discuss your options and next steps for family planning.",
+          contentW - 8,
+        );
+        const consultBoxH = 12 + consultLines.length * 5;
+
+        ensureSpace(14 + consultBoxH + 10);
+        sectionTitle("3.  Medical Consultation");
+
+        doc.setFillColor(240, 253, 244);
+        doc.setDrawColor(134, 239, 172);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(margin, y, contentW, consultBoxH, 2, 2, "FD");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(21, 128, 61);
+        doc.text(
+          "Dr. Leila Saab - Medical Genetic Consultant",
+          margin + 4,
+          y + 7,
+        );
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setTextColor(22, 101, 52);
+        doc.text(consultLines, margin + 4, y + 13);
+        y += consultBoxH + 10;
+
+        // ── Disclaimer ──
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(8);
+        const disclaimerLines = doc.splitTextToSize(
+          "Disclaimer: This report presents a statistical risk estimate generated from the genetic information provided and does not constitute a medical diagnosis. Please consult a qualified healthcare professional or genetic counselor before making any medical or family-planning decisions.",
+          contentW,
+        );
+        ensureSpace(disclaimerLines.length * 4 + 5);
+        doc.setTextColor(156, 163, 175);
+        doc.text(disclaimerLines, margin, y);
+
+        // ── Footer on every page ──
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+          doc.setPage(p);
+          drawFooter(p, totalPages);
+        }
+
+        // ── Download (always English content & filename) ──
+        const filename = `LebanonGen_Assessment_Report_${reportId}.pdf`;
+        doc.save(filename);
       })
       .catch((err) => {
         alert("PDF error: " + err.message);
